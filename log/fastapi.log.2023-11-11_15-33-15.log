@@ -1,0 +1,5 @@
+INFO: 2023-11-18 16:57:27,011 user.py get_user_post_pic，bad path: ./assets/file/2023-11-10/79b3ae02-7fc6-11ee-87df-00163e37f3cb.jpg
+INFO: 2023-11-18 17:42:56,518 order.py start to order
+INFO: 2023-11-18 17:47:57,298 order.py start to order
+INFO: 2023-11-18 17:54:19,471 order.py start to order
+INFO: 2023-11-18 17:56:47,676 order.py start to order

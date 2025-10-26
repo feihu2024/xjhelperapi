@@ -1,0 +1,5 @@
+INFO: 2023-11-22 15:32:46,610 main.py Len>0：0，0
+INFO: 2023-11-22 15:32:49,370 user.py get_user_post_pic，bad path: ./assets/file/2023-11-10/79b3ae02-7fc6-11ee-87df-00163e37f3cb.jpg
+INFO: 2023-11-22 15:38:50,419 user.py get_user_post_pic，bad path: ./assets/file/2023-11-10/79b3ae02-7fc6-11ee-87df-00163e37f3cb.jpg
+INFO: 2023-11-22 15:39:16,918 order.py start to order
+INFO: 2023-11-22 15:39:16,950 order.py start to wxpay

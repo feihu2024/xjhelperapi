@@ -1,0 +1,14 @@
+INFO: 2023-11-18 17:02:41,306 main.py Len>0：0，0
+INFO: 2023-11-18 17:02:43,840 user.py get_user_post_pic，bad path: ./assets/file/2023-11-10/79b3ae02-7fc6-11ee-87df-00163e37f3cb.jpg
+INFO: 2023-11-18 17:02:54,639 main.py Len>0：0，0
+INFO: 2023-11-18 17:11:22,413 user.py get_user_post_pic，bad path: ./assets/file/2023-11-10/79b3ae02-7fc6-11ee-87df-00163e37f3cb.jpg
+INFO: 2023-11-18 17:17:53,538 user.py get_user_post_pic，bad path: ./assets/file/2023-11-10/79b3ae02-7fc6-11ee-87df-00163e37f3cb.jpg
+INFO: 2023-11-18 17:36:20,426 user.py get_user_post_pic，bad path: ./assets/file/2023-11-10/0807422e-7fc5-11ee-8f02-00163e37f3cb.jpg
+INFO: 2023-11-18 17:37:14,636 order.py start to order
+INFO: 2023-11-18 17:38:24,951 user.py get_user_post_pic，bad path: ./assets/file/2023-10-07/01ae6b6a-64ee-11ee-bf8c-00163e37f3cb.jpg
+INFO: 2023-11-18 17:43:57,880 order.py start to order
+INFO: 2023-11-18 17:44:59,407 order.py start to order
+INFO: 2023-11-18 17:53:37,126 order.py start to order
+INFO: 2023-11-18 17:56:33,223 user.py get_user_post_pic，bad path: ./assets/file/2023-10-04/298dfb8e-628a-11ee-a807-00163e37f3cb.jpg
+INFO: 2023-11-18 17:58:32,899 user.py get_user_post_pic，bad path: ./assets/file/2023-10-04/298dfb8e-628a-11ee-a807-00163e37f3cb.jpg
+INFO: 2023-11-18 17:58:43,684 order.py start to order

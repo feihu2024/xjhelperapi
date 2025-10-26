@@ -1,0 +1,10 @@
+python-dateutil
+SQLAlchemy
+PyMySQL
+python-multipart
+requests
+python-jose[cryptography]==3.3.0
+fastapi==0.70.0
+uvicorn[standard]==0.15.0
+pydantic
+wechatpayv3==1.2.36
