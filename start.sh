@@ -3,8 +3,8 @@
 export DB_HOST=localhost
 export DB_PORT=3306
 export DB_USERNAME=root
-export DB_PASSWORD=ph1109
-export DB=mall
+export DB_PASSWORD=123456
+export DB=school
 
 export DOMAIN='https://'
 
