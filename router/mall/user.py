@@ -9,7 +9,7 @@ import numpy as np
 import logging
 
 import model.mall.response
-from dao import d_user, d_db, d_account
+from dao import d_user, d_db
 from urllib.parse import urlencode
 from model.res.auth import LoginRes
 from model.schema import TUser
@@ -18,8 +18,6 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Body
 from service.auth_service import token_encode
 from service import wx_service
-from model.mall import m_account
-from PIL import Image, ImageDraw, ImageFont
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from common import global_define
