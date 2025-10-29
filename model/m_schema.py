@@ -62,6 +62,27 @@ class FilterResChinesePointSubject(BaseModel):
     data: List[SChinesePointSubject]
     total: int
     
+class CreateCity(BaseModel):
+    cname: Optional[str]
+    parid: Optional[int] = Field(title='上级地区id，默认0为顶级地区')
+    status: Optional[int] = Field(title='地区状态')
+
+        
+class SCity(CreateCity):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class City(CreateCity):
+    id: Optional[int] = None
+    class Config:
+        orm_mode = True
+
+class FilterResCity(BaseModel):
+    data: List[SCity]
+    total: int
+    
 class CreateCoin(BaseModel):
     user_id: Optional[int] = Field(title='外键')
     change: Optional[int] = Field(title='变动')

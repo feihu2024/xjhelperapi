@@ -1306,6 +1306,279 @@ async def fast_filter_chinese_point_subject(
     return FilterResChinesePointSubject(data=data, total=-1)
 
     
+@router.post(f'/city/create', response_model=SCity)
+async def create_city(item: CreateCity) -> SCity:
+    dict_item = dict(item)
+    for k,v in dict_item.items():
+        if v is not None:
+            v = str(v)
+            v = v.replace(" ", "")
+            get_search = re.search(r"'", v, flags=0)
+            get_search2 = re.search(r'%27', v, flags=0)
+            get_search3 = re.search(r'unionselect', v, flags=0)
+            if get_search or get_search2 or get_search3:
+               raise HTTPException(status_code=404, detail='bad way~~~~~~')
+
+    return d_db.insert_city(item)
+        
+    
+@router.post(f'/city/update', response_model=str)
+async def update_city(item: SCity) -> str:
+    d_db.update_city(item)
+    return "success"
+
+    
+@router.get(f'/city/get', response_model=SCity)
+async def get_city(city_id: int) -> SCity:
+    return d_db.get_city(city_id)
+
+
+@router.get(f'/city/filter', response_model=FilterResCity)
+async def filter_city(
+        id: Optional[str] = None, 
+        cname: Optional[str] = None, 
+        parid: Optional[str] = None, 
+        status: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_cname: Optional[str] = None, 
+        l_parid: Optional[str] = None, 
+        l_status: Optional[str] = None, 
+        s_cname: Optional[str] = None,
+        order_by: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResCity:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if cname is not None:
+        values = cname.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['cname'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['cname_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['cname_end'] = val
+        
+    if parid is not None:
+        values = parid.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['parid'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['parid_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['parid_end'] = int(val)
+        
+    if status is not None:
+        values = status.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['status'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['status_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['status_end'] = int(val)
+        
+
+    if s_cname is not None:
+        search_items['cname'] = '%' + s_cname + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_cname is not None:
+        values = l_cname.split(',')
+        values = [val for val in values]
+        set_items['cname'] = values
+        
+    if l_parid is not None:
+        values = l_parid.split(',')
+        values = [int(val) for val in values]
+        set_items['parid'] = values
+        
+    if l_status is not None:
+        values = l_status.split(',')
+        values = [int(val) for val in values]
+        set_items['status'] = values
+            
+    
+    
+    order_items = dict()
+    if order_by is not None:
+        orders = order_by.split(',')
+        for order in orders:
+            if order.startswith('-'):
+                order_items[order[1:]] = 'desc'
+            else:
+                order_items[order] = 'asc'
+    data = d_db.filter_city(items, search_items, set_items, order_items, page, page_size)
+    c = d_db.filter_count_city(items, search_items, set_items)
+    
+    return FilterResCity(data=data, total=c)
+
+
+@router.get(f'/city/fast_filter', response_model=FilterResCity)
+async def fast_filter_city(
+        id: Optional[str] = None, 
+        cname: Optional[str] = None, 
+        parid: Optional[str] = None, 
+        status: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_cname: Optional[str] = None, 
+        l_parid: Optional[str] = None, 
+        l_status: Optional[str] = None, 
+        s_cname: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResCity:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if cname is not None:
+        values = cname.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['cname'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['cname_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['cname_end'] = val
+        
+    if parid is not None:
+        values = parid.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['parid'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['parid_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['parid_end'] = int(val)
+        
+    if status is not None:
+        values = status.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['status'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['status_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['status_end'] = int(val)
+        
+
+    if s_cname is not None:
+        search_items['cname'] = '%' + s_cname + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_cname is not None:
+        values = l_cname.split(',')
+        values = [val for val in values]
+        set_items['cname'] = values
+        
+    if l_parid is not None:
+        values = l_parid.split(',')
+        values = [int(val) for val in values]
+        set_items['parid'] = values
+        
+    if l_status is not None:
+        values = l_status.split(',')
+        values = [int(val) for val in values]
+        set_items['status'] = values
+            
+    
+    data = d_db.filter_city(items, search_items, set_items, page, page_size)
+    return FilterResCity(data=data, total=-1)
+
+    
 @router.post(f'/coin/create', response_model=SCoin)
 async def create_coin(item: CreateCoin) -> SCoin:
     dict_item = dict(item)

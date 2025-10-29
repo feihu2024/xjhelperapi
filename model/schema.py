@@ -43,6 +43,16 @@ class TChinesePointSubject(Base):
     knowledge_list = Column(String(200), comment='所属知识点列表，逗号分割')
 
 
+class TCity(Base):
+    __tablename__ = 't_city'
+    __table_args__ = {'comment': '地区表省，市，区'}
+
+    id = Column(Integer, primary_key=True)
+    cname = Column(String(128))
+    parid = Column(Integer, server_default=text("'0'"), comment='上级地区id，默认0为顶级地区')
+    status = Column(TINYINT(1), server_default=text("'0'"), comment='地区状态')
+
+
 class TCoin(Base):
     __tablename__ = 't_coin'
     __table_args__ = {'comment': '用户的积分历史记录'}

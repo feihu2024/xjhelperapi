@@ -745,6 +745,184 @@ def filter_count_chinese_point_subject(items: dict, search_items: dict={}, set_i
         return c
 
     
+def insert_city(item: CreateCity, db: Optional[SessionLocal] = None) -> SCity:
+    data = model2dict(item)
+    t = TCity(**data)
+    if db:
+        db.add(t)
+        db.flush()
+        db.refresh(t)
+        return SAddress.parse_obj(t.__dict__)
+    with Dao() as db:
+        db.add(t)
+        db.commit()
+        db.refresh(t)
+    return SCity.parse_obj(t.__dict__)
+
+    
+def delete_city(city_id: int, db: Optional[SessionLocal] = None):
+    if db:
+        db.query(TCity).where(TCity.id == city_id).delete()
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TCity).where(TCity.id == city_id).delete()
+        db.commit()
+
+    
+def update_city(item: SCity, db: Optional[SessionLocal] = None):
+    data = model2dict(item)
+    data.pop('id')
+    if db:
+        db.query(TCity).where(TCity.id == item.id).update(data)
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TCity).where(TCity.id == item.id).update(data)
+        db.commit()
+
+    
+def get_city(city_id: int) -> Optional[SCity]:
+    with Dao() as db:
+        t = db.query(TCity).where(TCity.id == city_id).first()
+        if t:
+            return SCity.parse_obj(t.__dict__)
+        else:
+            return None
+
+
+def filter_city(
+    items: dict, 
+    search_items: dict={}, 
+    set_items: dict={}, 
+    order_items: dict={},
+    page: int = 1,
+    page_size: int = 20) -> List[SCity]:
+    with Dao() as db:
+        q = db.query(TCity)
+
+
+        if 'id' in items:
+            q = q.where(TCity.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TCity.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TCity.id <= items['id_end'])
+        
+        if 'cname' in items:
+            q = q.where(TCity.cname == items['cname'])
+        if 'cname_start' in items:
+            q = q.where(TCity.cname >= items['cname_start'])
+        if 'cname_end' in items:
+            q = q.where(TCity.cname <= items['cname_end'])
+        
+        if 'parid' in items:
+            q = q.where(TCity.parid == items['parid'])
+        if 'parid_start' in items:
+            q = q.where(TCity.parid >= items['parid_start'])
+        if 'parid_end' in items:
+            q = q.where(TCity.parid <= items['parid_end'])
+        
+        if 'status' in items:
+            q = q.where(TCity.status == items['status'])
+        if 'status_start' in items:
+            q = q.where(TCity.status >= items['status_start'])
+        if 'status_end' in items:
+            q = q.where(TCity.status <= items['status_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TCity.id.in_(set_items['id']))
+        
+        if 'cname' in set_items:
+            q = q.where(TCity.cname.in_(set_items['cname']))
+        
+        if 'parid' in set_items:
+            q = q.where(TCity.parid.in_(set_items['parid']))
+        
+        if 'status' in set_items:
+            q = q.where(TCity.status.in_(set_items['status']))
+        
+
+        if 'cname' in search_items:
+            q = q.where(TCity.cname.like(search_items['cname']))
+        
+    
+
+        orders = []
+        for col, val in order_items.items():
+            if val == 'asc':          
+                #orders.append(TCity.status.asc())
+                orders.append(TCity.id.asc())
+            elif val == 'desc':
+                #orders.append(TCity.status.desc())
+                orders.append(TCity.id.desc())
+            else:
+                raise HTTPException(400, 'order value must be asc or desc')
+        if len(order_items) > 0:
+            q = q.order_by(*orders)
+        
+        t_city_list = q.offset(page*page_size-page_size).limit(page_size).all()
+        return [SCity.parse_obj(t.__dict__) for t in t_city_list]
+
+
+def filter_count_city(items: dict, search_items: dict={}, set_items: dict={}) -> int:
+    with Dao() as db:
+        q = db.query(TCity)
+
+
+        if 'id' in items:
+            q = q.where(TCity.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TCity.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TCity.id <= items['id_end'])
+        
+        if 'cname' in items:
+            q = q.where(TCity.cname == items['cname'])
+        if 'cname_start' in items:
+            q = q.where(TCity.cname >= items['cname_start'])
+        if 'cname_end' in items:
+            q = q.where(TCity.cname <= items['cname_end'])
+        
+        if 'parid' in items:
+            q = q.where(TCity.parid == items['parid'])
+        if 'parid_start' in items:
+            q = q.where(TCity.parid >= items['parid_start'])
+        if 'parid_end' in items:
+            q = q.where(TCity.parid <= items['parid_end'])
+        
+        if 'status' in items:
+            q = q.where(TCity.status == items['status'])
+        if 'status_start' in items:
+            q = q.where(TCity.status >= items['status_start'])
+        if 'status_end' in items:
+            q = q.where(TCity.status <= items['status_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TCity.id.in_(set_items['id']))
+        
+        if 'cname' in set_items:
+            q = q.where(TCity.cname.in_(set_items['cname']))
+        
+        if 'parid' in set_items:
+            q = q.where(TCity.parid.in_(set_items['parid']))
+        
+        if 'status' in set_items:
+            q = q.where(TCity.status.in_(set_items['status']))
+        
+
+        if 'cname' in search_items:
+            q = q.where(TCity.cname.like(search_items['cname']))
+        
+    
+        c = q.count()
+        return c
+
+    
 def insert_coin(item: CreateCoin, db: Optional[SessionLocal] = None) -> SCoin:
     data = model2dict(item)
     t = TCoin(**data)
