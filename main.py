@@ -26,11 +26,9 @@ origins = [
     "*"
 ]
 origins_b = [
-"http://kemaiyuncang4wbhfr.yxiaozhu.com",
-"https://yxiaozhu.com",
-"http://kemaiyuncang4wbhfrapi.yxiaozhu.com",
-"http://auadmin.mlcfjihua.cn",
-"http://myshop888.yxiaozhu.com",
+"http://xjhelperapi.qting518.com",
+"http://xjhelper.qting518.com:8083",
+"http://xjhelper.qting518.com",
 "http://localhost",
 "http://localhost:3000",
 "http://localhost:8080"
