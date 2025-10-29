@@ -4,6 +4,36 @@ from datetime import datetime
 from fastapi.exceptions import HTTPException
 
 
+class CreateBalance(BaseModel):
+    user_id: Optional[int] = Field(title='外键')
+    change: Optional[int] = Field(title='变动金额')
+    balance: Optional[int] = Field(title='余额')
+    type: Optional[str] = Field(title='类型')
+    description: Optional[str] = Field(title='详细描述')
+    create_time: Optional[datetime] = Field(title='创建时间')
+    user_withdraw_id: Optional[int]
+    operator_id: Optional[int] = Field(title='操作员ID')
+    out_trade_no: Optional[str]
+    good_id: Optional[str] = Field(title='收益商品id')
+    good_title: Optional[str] = Field(title='收益商品标题名称')
+    good_num: Optional[str] = Field(title='收益商品数量')
+
+        
+class SBalance(CreateBalance):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class Balance(CreateBalance):
+    id: Optional[int] = None
+    class Config:
+        orm_mode = True
+
+class FilterResBalance(BaseModel):
+    data: List[SBalance]
+    total: int
+    
 class CreateChinesePointSubject(BaseModel):
     create_time: Optional[datetime] = Field(title='创建时间')
     cps_content: Optional[str] = Field(title='知识点或重点题内容')
@@ -30,6 +60,31 @@ class ChinesePointSubject(CreateChinesePointSubject):
 
 class FilterResChinesePointSubject(BaseModel):
     data: List[SChinesePointSubject]
+    total: int
+    
+class CreateCoin(BaseModel):
+    user_id: Optional[int] = Field(title='外键')
+    change: Optional[int] = Field(title='变动')
+    coin: Optional[int] = Field(title='积分')
+    type: Optional[str] = Field(title='类型')
+    description: Optional[str] = Field(title='详细')
+    create_time: Optional[datetime] = Field(title='创建时间')
+    out_trade_no: Optional[str]
+
+        
+class SCoin(CreateCoin):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class Coin(CreateCoin):
+    id: Optional[int] = None
+    class Config:
+        orm_mode = True
+
+class FilterResCoin(BaseModel):
+    data: List[SCoin]
     total: int
     
 class CreateEnglishPointSubject(BaseModel):
@@ -206,5 +261,48 @@ class ShSubject(CreateShSubject):
 
 class FilterResShSubject(BaseModel):
     data: List[SShSubject]
+    total: int
+    
+class CreateUser(BaseModel):
+    username: Optional[str] = Field(title='用户名')
+    email: Optional[str] = Field(title='邮箱')
+    open_id: Optional[str] = Field(title='openID from wechat channel')
+    union_id: Optional[str] = Field(title='unionID from tecent')
+    password: Optional[str] = Field(title='密码（哈希值）')
+    nickname: Optional[str] = Field(title='昵称')
+    phone: Optional[str] = Field(title='联系方式')
+    id_card: Optional[str] = Field(title='身份证')
+    level_id: Optional[int] = Field(title='用户等等级 默认是0')
+    status: Optional[int] = Field(title='0: 已实名   1: 未实名,被is_agree替代')
+    register_time: Optional[datetime] = Field(title='注册时间')
+    avatar: Optional[str] = Field(title='头像url')
+    invited_user_id: Optional[int] = Field(title='邀请人id')
+    coin: Optional[int] = Field(title='积分')
+    gender: Optional[int] = Field(title='0:  男  1:  女')
+    last_active_time: Optional[datetime] = Field(title='最近登录时间')
+    name: Optional[str] = Field(title='用户名')
+    is_agree: Optional[int] = Field(title='是否已经校验')
+    parent_id: Optional[int] = Field(title='父级用户')
+    parent_id_history: Optional[str] = Field(title='曾经的上级(ID之间逗号分隔)')
+    level_one_time: Optional[datetime] = Field(title='升级活跃会员时间')
+    level_two_time: Optional[datetime] = Field(title='升级老板会员时间')
+    level_three_time: Optional[datetime] = Field(title='升级大老板会员时间')
+    level_top_time: Optional[datetime] = Field(title='升级推广顶级时间')
+    manage_id: Optional[int] = Field(title='管理等级 默认是0')
+
+        
+class SUser(CreateUser):
+    id: int = Field(title='标识id')
+
+    class Config:
+        orm_mode = True
+
+class User(CreateUser):
+    id: Optional[int] = None
+    class Config:
+        orm_mode = True
+
+class FilterResUser(BaseModel):
+    data: List[SUser]
     total: int
     

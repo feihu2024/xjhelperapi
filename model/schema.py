@@ -1,9 +1,29 @@
 # coding: utf-8
 from sqlalchemy import Column, Integer, String, TIMESTAMP, Text, text
+from sqlalchemy.dialects.mysql import TINYINT, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 metadata = Base.metadata
+
+
+class TBalance(Base):
+    __tablename__ = 't_balance'
+    __table_args__ = {'comment': '用户账户余额表，用户的余额历史 记录，不可修改，只能增加'}
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, nullable=False, comment='外键')
+    change = Column(Integer, nullable=False, server_default=text("'0'"), comment='变动金额')
+    balance = Column(Integer, nullable=False, comment='余额')
+    type = Column(VARCHAR(20), comment='类型')
+    description = Column(VARCHAR(100), comment='详细描述')
+    create_time = Column(TIMESTAMP, comment='创建时间')
+    user_withdraw_id = Column(Integer)
+    operator_id = Column(Integer, comment='操作员ID')
+    out_trade_no = Column(String(64))
+    good_id = Column(VARCHAR(100), comment='收益商品id')
+    good_title = Column(Text, comment='收益商品标题名称')
+    good_num = Column(VARCHAR(100), comment='收益商品数量')
 
 
 class TChinesePointSubject(Base):
@@ -21,6 +41,20 @@ class TChinesePointSubject(Base):
     answer_pic_path = Column(String(200), comment='图片回答路径')
     answer_audio_path = Column(String(200), comment='多媒体回答路径')
     knowledge_list = Column(String(200), comment='所属知识点列表，逗号分割')
+
+
+class TCoin(Base):
+    __tablename__ = 't_coin'
+    __table_args__ = {'comment': '用户的积分历史记录'}
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, nullable=False, comment='外键')
+    change = Column(Integer, nullable=False, server_default=text("'0'"), comment='变动')
+    coin = Column(Integer, nullable=False, comment='积分')
+    type = Column(VARCHAR(20), nullable=False, comment='类型')
+    description = Column(VARCHAR(100), comment='详细')
+    create_time = Column(TIMESTAMP, comment='创建时间')
+    out_trade_no = Column(String(64))
 
 
 class TEnglishPointSubject(Base):
@@ -120,3 +154,35 @@ class TShSubject(Base):
     su_create_name = Column(String(100), comment='创建人')
     class_id = Column(Integer, server_default=text("'0'"), comment='所属年级id')
     knowledge_list = Column(String(200), comment='所属知识点列表，逗号分割')
+
+
+class TUser(Base):
+    __tablename__ = 't_user'
+    __table_args__ = {'comment': 'user'}
+
+    id = Column(Integer, primary_key=True, unique=True, comment='标识id')
+    username = Column(VARCHAR(45), comment='用户名')
+    email = Column(VARCHAR(45), comment='邮箱')
+    open_id = Column(String(45), comment='openID from wechat channel')
+    union_id = Column(String(45), comment='unionID from tecent')
+    password = Column(VARCHAR(45), comment='密码（哈希值）')
+    nickname = Column(VARCHAR(45), comment='昵称')
+    phone = Column(VARCHAR(45), comment='联系方式')
+    id_card = Column(VARCHAR(45), comment='身份证')
+    level_id = Column(Integer, server_default=text("'0'"), comment='用户等等级 默认是0')
+    status = Column(TINYINT, comment='0: 已实名   1: 未实名,被is_agree替代')
+    register_time = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"), comment='注册时间')
+    avatar = Column(VARCHAR(512), comment='头像url')
+    invited_user_id = Column(Integer, comment='邀请人id')
+    coin = Column(Integer, comment='积分')
+    gender = Column(TINYINT, comment='0:  男  1:  女')
+    last_active_time = Column(TIMESTAMP, comment='最近登录时间')
+    name = Column(VARCHAR(45), comment='用户名')
+    is_agree = Column(TINYINT(1), server_default=text("'0'"), comment='是否已经校验')
+    parent_id = Column(Integer, comment='父级用户')
+    parent_id_history = Column(VARCHAR(45), comment='曾经的上级(ID之间逗号分隔)')
+    level_one_time = Column(TIMESTAMP, comment='升级活跃会员时间')
+    level_two_time = Column(TIMESTAMP, comment='升级老板会员时间')
+    level_three_time = Column(TIMESTAMP, comment='升级大老板会员时间')
+    level_top_time = Column(TIMESTAMP, comment='升级推广顶级时间')
+    manage_id = Column(Integer, server_default=text("'0'"), comment='管理等级 默认是0')

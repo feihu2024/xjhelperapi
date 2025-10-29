@@ -8,6 +8,697 @@ import re
 router = APIRouter()
 
     
+@router.post(f'/balance/create', response_model=SBalance)
+async def create_balance(item: CreateBalance) -> SBalance:
+    dict_item = dict(item)
+    for k,v in dict_item.items():
+        if v is not None:
+            v = str(v)
+            v = v.replace(" ", "")
+            get_search = re.search(r"'", v, flags=0)
+            get_search2 = re.search(r'%27', v, flags=0)
+            get_search3 = re.search(r'unionselect', v, flags=0)
+            if get_search or get_search2 or get_search3:
+               raise HTTPException(status_code=404, detail='bad way~~~~~~')
+
+    return d_db.insert_balance(item)
+        
+    
+@router.post(f'/balance/update', response_model=str)
+async def update_balance(item: SBalance) -> str:
+    d_db.update_balance(item)
+    return "success"
+
+    
+@router.get(f'/balance/get', response_model=SBalance)
+async def get_balance(balance_id: int) -> SBalance:
+    return d_db.get_balance(balance_id)
+
+
+@router.get(f'/balance/filter', response_model=FilterResBalance)
+async def filter_balance(
+        id: Optional[str] = None, 
+        user_id: Optional[str] = None, 
+        change: Optional[str] = None, 
+        balance: Optional[str] = None, 
+        type: Optional[str] = None, 
+        description: Optional[str] = None, 
+        create_time: Optional[str] = None, 
+        user_withdraw_id: Optional[str] = None, 
+        operator_id: Optional[str] = None, 
+        out_trade_no: Optional[str] = None, 
+        good_id: Optional[str] = None, 
+        good_title: Optional[str] = None, 
+        good_num: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_user_id: Optional[str] = None, 
+        l_change: Optional[str] = None, 
+        l_balance: Optional[str] = None, 
+        l_type: Optional[str] = None, 
+        l_description: Optional[str] = None, 
+        l_create_time: Optional[str] = None, 
+        l_user_withdraw_id: Optional[str] = None, 
+        l_operator_id: Optional[str] = None, 
+        l_out_trade_no: Optional[str] = None, 
+        l_good_id: Optional[str] = None, 
+        l_good_title: Optional[str] = None, 
+        l_good_num: Optional[str] = None, 
+        s_type: Optional[str] = None, 
+        s_description: Optional[str] = None, 
+        s_out_trade_no: Optional[str] = None, 
+        s_good_id: Optional[str] = None, 
+        s_good_title: Optional[str] = None, 
+        s_good_num: Optional[str] = None,
+        order_by: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResBalance:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if user_id is not None:
+        values = user_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['user_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['user_id_end'] = int(val)
+        
+    if change is not None:
+        values = change.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['change'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['change_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['change_end'] = int(val)
+        
+    if balance is not None:
+        values = balance.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['balance'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['balance_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['balance_end'] = int(val)
+        
+    if type is not None:
+        values = type.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['type'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['type_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['type_end'] = val
+        
+    if description is not None:
+        values = description.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['description'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['description_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['description_end'] = val
+        
+    if create_time is not None:
+        values = create_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['create_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['create_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['create_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if user_withdraw_id is not None:
+        values = user_withdraw_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_withdraw_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['user_withdraw_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['user_withdraw_id_end'] = int(val)
+        
+    if operator_id is not None:
+        values = operator_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['operator_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['operator_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['operator_id_end'] = int(val)
+        
+    if out_trade_no is not None:
+        values = out_trade_no.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['out_trade_no'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['out_trade_no_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['out_trade_no_end'] = val
+        
+    if good_id is not None:
+        values = good_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['good_id'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['good_id_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['good_id_end'] = val
+        
+    if good_title is not None:
+        values = good_title.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['good_title'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['good_title_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['good_title_end'] = val
+        
+    if good_num is not None:
+        values = good_num.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['good_num'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['good_num_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['good_num_end'] = val
+        
+
+    if s_type is not None:
+        search_items['type'] = '%' + s_type + '%'
+        
+    if s_description is not None:
+        search_items['description'] = '%' + s_description + '%'
+        
+    if s_out_trade_no is not None:
+        search_items['out_trade_no'] = '%' + s_out_trade_no + '%'
+        
+    if s_good_id is not None:
+        search_items['good_id'] = '%' + s_good_id + '%'
+        
+    if s_good_title is not None:
+        search_items['good_title'] = '%' + s_good_title + '%'
+        
+    if s_good_num is not None:
+        search_items['good_num'] = '%' + s_good_num + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_user_id is not None:
+        values = l_user_id.split(',')
+        values = [int(val) for val in values]
+        set_items['user_id'] = values
+        
+    if l_change is not None:
+        values = l_change.split(',')
+        values = [int(val) for val in values]
+        set_items['change'] = values
+        
+    if l_balance is not None:
+        values = l_balance.split(',')
+        values = [int(val) for val in values]
+        set_items['balance'] = values
+        
+    if l_type is not None:
+        values = l_type.split(',')
+        values = [val for val in values]
+        set_items['type'] = values
+        
+    if l_description is not None:
+        values = l_description.split(',')
+        values = [val for val in values]
+        set_items['description'] = values
+        
+    if l_create_time is not None:
+        values = l_create_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['create_time'] = values
+        
+    if l_user_withdraw_id is not None:
+        values = l_user_withdraw_id.split(',')
+        values = [int(val) for val in values]
+        set_items['user_withdraw_id'] = values
+        
+    if l_operator_id is not None:
+        values = l_operator_id.split(',')
+        values = [int(val) for val in values]
+        set_items['operator_id'] = values
+        
+    if l_out_trade_no is not None:
+        values = l_out_trade_no.split(',')
+        values = [val for val in values]
+        set_items['out_trade_no'] = values
+        
+    if l_good_id is not None:
+        values = l_good_id.split(',')
+        values = [val for val in values]
+        set_items['good_id'] = values
+        
+    if l_good_title is not None:
+        values = l_good_title.split(',')
+        values = [val for val in values]
+        set_items['good_title'] = values
+        
+    if l_good_num is not None:
+        values = l_good_num.split(',')
+        values = [val for val in values]
+        set_items['good_num'] = values
+            
+    
+    
+    order_items = dict()
+    if order_by is not None:
+        orders = order_by.split(',')
+        for order in orders:
+            if order.startswith('-'):
+                order_items[order[1:]] = 'desc'
+            else:
+                order_items[order] = 'asc'
+    data = d_db.filter_balance(items, search_items, set_items, order_items, page, page_size)
+    c = d_db.filter_count_balance(items, search_items, set_items)
+    
+    return FilterResBalance(data=data, total=c)
+
+
+@router.get(f'/balance/fast_filter', response_model=FilterResBalance)
+async def fast_filter_balance(
+        id: Optional[str] = None, 
+        user_id: Optional[str] = None, 
+        change: Optional[str] = None, 
+        balance: Optional[str] = None, 
+        type: Optional[str] = None, 
+        description: Optional[str] = None, 
+        create_time: Optional[str] = None, 
+        user_withdraw_id: Optional[str] = None, 
+        operator_id: Optional[str] = None, 
+        out_trade_no: Optional[str] = None, 
+        good_id: Optional[str] = None, 
+        good_title: Optional[str] = None, 
+        good_num: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_user_id: Optional[str] = None, 
+        l_change: Optional[str] = None, 
+        l_balance: Optional[str] = None, 
+        l_type: Optional[str] = None, 
+        l_description: Optional[str] = None, 
+        l_create_time: Optional[str] = None, 
+        l_user_withdraw_id: Optional[str] = None, 
+        l_operator_id: Optional[str] = None, 
+        l_out_trade_no: Optional[str] = None, 
+        l_good_id: Optional[str] = None, 
+        l_good_title: Optional[str] = None, 
+        l_good_num: Optional[str] = None, 
+        s_type: Optional[str] = None, 
+        s_description: Optional[str] = None, 
+        s_out_trade_no: Optional[str] = None, 
+        s_good_id: Optional[str] = None, 
+        s_good_title: Optional[str] = None, 
+        s_good_num: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResBalance:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if user_id is not None:
+        values = user_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['user_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['user_id_end'] = int(val)
+        
+    if change is not None:
+        values = change.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['change'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['change_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['change_end'] = int(val)
+        
+    if balance is not None:
+        values = balance.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['balance'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['balance_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['balance_end'] = int(val)
+        
+    if type is not None:
+        values = type.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['type'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['type_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['type_end'] = val
+        
+    if description is not None:
+        values = description.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['description'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['description_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['description_end'] = val
+        
+    if create_time is not None:
+        values = create_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['create_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['create_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['create_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if user_withdraw_id is not None:
+        values = user_withdraw_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_withdraw_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['user_withdraw_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['user_withdraw_id_end'] = int(val)
+        
+    if operator_id is not None:
+        values = operator_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['operator_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['operator_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['operator_id_end'] = int(val)
+        
+    if out_trade_no is not None:
+        values = out_trade_no.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['out_trade_no'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['out_trade_no_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['out_trade_no_end'] = val
+        
+    if good_id is not None:
+        values = good_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['good_id'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['good_id_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['good_id_end'] = val
+        
+    if good_title is not None:
+        values = good_title.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['good_title'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['good_title_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['good_title_end'] = val
+        
+    if good_num is not None:
+        values = good_num.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['good_num'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['good_num_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['good_num_end'] = val
+        
+
+    if s_type is not None:
+        search_items['type'] = '%' + s_type + '%'
+        
+    if s_description is not None:
+        search_items['description'] = '%' + s_description + '%'
+        
+    if s_out_trade_no is not None:
+        search_items['out_trade_no'] = '%' + s_out_trade_no + '%'
+        
+    if s_good_id is not None:
+        search_items['good_id'] = '%' + s_good_id + '%'
+        
+    if s_good_title is not None:
+        search_items['good_title'] = '%' + s_good_title + '%'
+        
+    if s_good_num is not None:
+        search_items['good_num'] = '%' + s_good_num + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_user_id is not None:
+        values = l_user_id.split(',')
+        values = [int(val) for val in values]
+        set_items['user_id'] = values
+        
+    if l_change is not None:
+        values = l_change.split(',')
+        values = [int(val) for val in values]
+        set_items['change'] = values
+        
+    if l_balance is not None:
+        values = l_balance.split(',')
+        values = [int(val) for val in values]
+        set_items['balance'] = values
+        
+    if l_type is not None:
+        values = l_type.split(',')
+        values = [val for val in values]
+        set_items['type'] = values
+        
+    if l_description is not None:
+        values = l_description.split(',')
+        values = [val for val in values]
+        set_items['description'] = values
+        
+    if l_create_time is not None:
+        values = l_create_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['create_time'] = values
+        
+    if l_user_withdraw_id is not None:
+        values = l_user_withdraw_id.split(',')
+        values = [int(val) for val in values]
+        set_items['user_withdraw_id'] = values
+        
+    if l_operator_id is not None:
+        values = l_operator_id.split(',')
+        values = [int(val) for val in values]
+        set_items['operator_id'] = values
+        
+    if l_out_trade_no is not None:
+        values = l_out_trade_no.split(',')
+        values = [val for val in values]
+        set_items['out_trade_no'] = values
+        
+    if l_good_id is not None:
+        values = l_good_id.split(',')
+        values = [val for val in values]
+        set_items['good_id'] = values
+        
+    if l_good_title is not None:
+        values = l_good_title.split(',')
+        values = [val for val in values]
+        set_items['good_title'] = values
+        
+    if l_good_num is not None:
+        values = l_good_num.split(',')
+        values = [val for val in values]
+        set_items['good_num'] = values
+            
+    
+    data = d_db.filter_balance(items, search_items, set_items, page, page_size)
+    return FilterResBalance(data=data, total=-1)
+
+    
 @router.post(f'/chinese_point_subject/create', response_model=SChinesePointSubject)
 async def create_chinese_point_subject(item: CreateChinesePointSubject) -> SChinesePointSubject:
     dict_item = dict(item)
@@ -613,6 +1304,463 @@ async def fast_filter_chinese_point_subject(
     
     data = d_db.filter_chinese_point_subject(items, search_items, set_items, page, page_size)
     return FilterResChinesePointSubject(data=data, total=-1)
+
+    
+@router.post(f'/coin/create', response_model=SCoin)
+async def create_coin(item: CreateCoin) -> SCoin:
+    dict_item = dict(item)
+    for k,v in dict_item.items():
+        if v is not None:
+            v = str(v)
+            v = v.replace(" ", "")
+            get_search = re.search(r"'", v, flags=0)
+            get_search2 = re.search(r'%27', v, flags=0)
+            get_search3 = re.search(r'unionselect', v, flags=0)
+            if get_search or get_search2 or get_search3:
+               raise HTTPException(status_code=404, detail='bad way~~~~~~')
+
+    return d_db.insert_coin(item)
+        
+    
+@router.post(f'/coin/update', response_model=str)
+async def update_coin(item: SCoin) -> str:
+    d_db.update_coin(item)
+    return "success"
+
+    
+@router.get(f'/coin/get', response_model=SCoin)
+async def get_coin(coin_id: int) -> SCoin:
+    return d_db.get_coin(coin_id)
+
+
+@router.get(f'/coin/filter', response_model=FilterResCoin)
+async def filter_coin(
+        id: Optional[str] = None, 
+        user_id: Optional[str] = None, 
+        change: Optional[str] = None, 
+        coin: Optional[str] = None, 
+        type: Optional[str] = None, 
+        description: Optional[str] = None, 
+        create_time: Optional[str] = None, 
+        out_trade_no: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_user_id: Optional[str] = None, 
+        l_change: Optional[str] = None, 
+        l_coin: Optional[str] = None, 
+        l_type: Optional[str] = None, 
+        l_description: Optional[str] = None, 
+        l_create_time: Optional[str] = None, 
+        l_out_trade_no: Optional[str] = None, 
+        s_type: Optional[str] = None, 
+        s_description: Optional[str] = None, 
+        s_out_trade_no: Optional[str] = None,
+        order_by: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResCoin:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if user_id is not None:
+        values = user_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['user_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['user_id_end'] = int(val)
+        
+    if change is not None:
+        values = change.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['change'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['change_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['change_end'] = int(val)
+        
+    if coin is not None:
+        values = coin.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['coin'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['coin_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['coin_end'] = int(val)
+        
+    if type is not None:
+        values = type.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['type'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['type_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['type_end'] = val
+        
+    if description is not None:
+        values = description.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['description'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['description_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['description_end'] = val
+        
+    if create_time is not None:
+        values = create_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['create_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['create_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['create_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if out_trade_no is not None:
+        values = out_trade_no.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['out_trade_no'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['out_trade_no_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['out_trade_no_end'] = val
+        
+
+    if s_type is not None:
+        search_items['type'] = '%' + s_type + '%'
+        
+    if s_description is not None:
+        search_items['description'] = '%' + s_description + '%'
+        
+    if s_out_trade_no is not None:
+        search_items['out_trade_no'] = '%' + s_out_trade_no + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_user_id is not None:
+        values = l_user_id.split(',')
+        values = [int(val) for val in values]
+        set_items['user_id'] = values
+        
+    if l_change is not None:
+        values = l_change.split(',')
+        values = [int(val) for val in values]
+        set_items['change'] = values
+        
+    if l_coin is not None:
+        values = l_coin.split(',')
+        values = [int(val) for val in values]
+        set_items['coin'] = values
+        
+    if l_type is not None:
+        values = l_type.split(',')
+        values = [val for val in values]
+        set_items['type'] = values
+        
+    if l_description is not None:
+        values = l_description.split(',')
+        values = [val for val in values]
+        set_items['description'] = values
+        
+    if l_create_time is not None:
+        values = l_create_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['create_time'] = values
+        
+    if l_out_trade_no is not None:
+        values = l_out_trade_no.split(',')
+        values = [val for val in values]
+        set_items['out_trade_no'] = values
+            
+    
+    
+    order_items = dict()
+    if order_by is not None:
+        orders = order_by.split(',')
+        for order in orders:
+            if order.startswith('-'):
+                order_items[order[1:]] = 'desc'
+            else:
+                order_items[order] = 'asc'
+    data = d_db.filter_coin(items, search_items, set_items, order_items, page, page_size)
+    c = d_db.filter_count_coin(items, search_items, set_items)
+    
+    return FilterResCoin(data=data, total=c)
+
+
+@router.get(f'/coin/fast_filter', response_model=FilterResCoin)
+async def fast_filter_coin(
+        id: Optional[str] = None, 
+        user_id: Optional[str] = None, 
+        change: Optional[str] = None, 
+        coin: Optional[str] = None, 
+        type: Optional[str] = None, 
+        description: Optional[str] = None, 
+        create_time: Optional[str] = None, 
+        out_trade_no: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_user_id: Optional[str] = None, 
+        l_change: Optional[str] = None, 
+        l_coin: Optional[str] = None, 
+        l_type: Optional[str] = None, 
+        l_description: Optional[str] = None, 
+        l_create_time: Optional[str] = None, 
+        l_out_trade_no: Optional[str] = None, 
+        s_type: Optional[str] = None, 
+        s_description: Optional[str] = None, 
+        s_out_trade_no: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResCoin:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if user_id is not None:
+        values = user_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['user_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['user_id_end'] = int(val)
+        
+    if change is not None:
+        values = change.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['change'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['change_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['change_end'] = int(val)
+        
+    if coin is not None:
+        values = coin.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['coin'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['coin_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['coin_end'] = int(val)
+        
+    if type is not None:
+        values = type.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['type'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['type_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['type_end'] = val
+        
+    if description is not None:
+        values = description.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['description'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['description_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['description_end'] = val
+        
+    if create_time is not None:
+        values = create_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['create_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['create_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['create_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if out_trade_no is not None:
+        values = out_trade_no.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['out_trade_no'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['out_trade_no_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['out_trade_no_end'] = val
+        
+
+    if s_type is not None:
+        search_items['type'] = '%' + s_type + '%'
+        
+    if s_description is not None:
+        search_items['description'] = '%' + s_description + '%'
+        
+    if s_out_trade_no is not None:
+        search_items['out_trade_no'] = '%' + s_out_trade_no + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_user_id is not None:
+        values = l_user_id.split(',')
+        values = [int(val) for val in values]
+        set_items['user_id'] = values
+        
+    if l_change is not None:
+        values = l_change.split(',')
+        values = [int(val) for val in values]
+        set_items['change'] = values
+        
+    if l_coin is not None:
+        values = l_coin.split(',')
+        values = [int(val) for val in values]
+        set_items['coin'] = values
+        
+    if l_type is not None:
+        values = l_type.split(',')
+        values = [val for val in values]
+        set_items['type'] = values
+        
+    if l_description is not None:
+        values = l_description.split(',')
+        values = [val for val in values]
+        set_items['description'] = values
+        
+    if l_create_time is not None:
+        values = l_create_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['create_time'] = values
+        
+    if l_out_trade_no is not None:
+        values = l_out_trade_no.split(',')
+        values = [val for val in values]
+        set_items['out_trade_no'] = values
+            
+    
+    data = d_db.filter_coin(items, search_items, set_items, page, page_size)
+    return FilterResCoin(data=data, total=-1)
 
     
 @router.post(f'/english_point_subject/create', response_model=SEnglishPointSubject)
@@ -3910,3 +5058,1280 @@ async def fast_filter_sh_subject(
     
     data = d_db.filter_sh_subject(items, search_items, set_items, page, page_size)
     return FilterResShSubject(data=data, total=-1)
+
+    
+@router.post(f'/user/create', response_model=SUser)
+async def create_user(item: CreateUser) -> SUser:
+    dict_item = dict(item)
+    for k,v in dict_item.items():
+        if v is not None:
+            v = str(v)
+            v = v.replace(" ", "")
+            get_search = re.search(r"'", v, flags=0)
+            get_search2 = re.search(r'%27', v, flags=0)
+            get_search3 = re.search(r'unionselect', v, flags=0)
+            if get_search or get_search2 or get_search3:
+               raise HTTPException(status_code=404, detail='bad way~~~~~~')
+
+    return d_db.insert_user(item)
+        
+    
+@router.post(f'/user/update', response_model=str)
+async def update_user(item: SUser) -> str:
+    d_db.update_user(item)
+    return "success"
+
+    
+@router.get(f'/user/get', response_model=SUser)
+async def get_user(user_id: int) -> SUser:
+    return d_db.get_user(user_id)
+
+
+@router.get(f'/user/filter', response_model=FilterResUser)
+async def filter_user(
+        id: Optional[str] = None, 
+        username: Optional[str] = None, 
+        email: Optional[str] = None, 
+        open_id: Optional[str] = None, 
+        union_id: Optional[str] = None, 
+        password: Optional[str] = None, 
+        nickname: Optional[str] = None, 
+        phone: Optional[str] = None, 
+        id_card: Optional[str] = None, 
+        level_id: Optional[str] = None, 
+        status: Optional[str] = None, 
+        register_time: Optional[str] = None, 
+        avatar: Optional[str] = None, 
+        invited_user_id: Optional[str] = None, 
+        coin: Optional[str] = None, 
+        gender: Optional[str] = None, 
+        last_active_time: Optional[str] = None, 
+        name: Optional[str] = None, 
+        is_agree: Optional[str] = None, 
+        parent_id: Optional[str] = None, 
+        parent_id_history: Optional[str] = None, 
+        level_one_time: Optional[str] = None, 
+        level_two_time: Optional[str] = None, 
+        level_three_time: Optional[str] = None, 
+        level_top_time: Optional[str] = None, 
+        manage_id: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_username: Optional[str] = None, 
+        l_email: Optional[str] = None, 
+        l_open_id: Optional[str] = None, 
+        l_union_id: Optional[str] = None, 
+        l_password: Optional[str] = None, 
+        l_nickname: Optional[str] = None, 
+        l_phone: Optional[str] = None, 
+        l_id_card: Optional[str] = None, 
+        l_level_id: Optional[str] = None, 
+        l_status: Optional[str] = None, 
+        l_register_time: Optional[str] = None, 
+        l_avatar: Optional[str] = None, 
+        l_invited_user_id: Optional[str] = None, 
+        l_coin: Optional[str] = None, 
+        l_gender: Optional[str] = None, 
+        l_last_active_time: Optional[str] = None, 
+        l_name: Optional[str] = None, 
+        l_is_agree: Optional[str] = None, 
+        l_parent_id: Optional[str] = None, 
+        l_parent_id_history: Optional[str] = None, 
+        l_level_one_time: Optional[str] = None, 
+        l_level_two_time: Optional[str] = None, 
+        l_level_three_time: Optional[str] = None, 
+        l_level_top_time: Optional[str] = None, 
+        l_manage_id: Optional[str] = None, 
+        s_username: Optional[str] = None, 
+        s_email: Optional[str] = None, 
+        s_open_id: Optional[str] = None, 
+        s_union_id: Optional[str] = None, 
+        s_password: Optional[str] = None, 
+        s_nickname: Optional[str] = None, 
+        s_phone: Optional[str] = None, 
+        s_id_card: Optional[str] = None, 
+        s_avatar: Optional[str] = None, 
+        s_name: Optional[str] = None, 
+        s_parent_id_history: Optional[str] = None,
+        order_by: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResUser:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if username is not None:
+        values = username.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['username'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['username_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['username_end'] = val
+        
+    if email is not None:
+        values = email.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['email'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['email_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['email_end'] = val
+        
+    if open_id is not None:
+        values = open_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['open_id'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['open_id_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['open_id_end'] = val
+        
+    if union_id is not None:
+        values = union_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['union_id'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['union_id_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['union_id_end'] = val
+        
+    if password is not None:
+        values = password.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['password'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['password_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['password_end'] = val
+        
+    if nickname is not None:
+        values = nickname.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['nickname'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['nickname_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['nickname_end'] = val
+        
+    if phone is not None:
+        values = phone.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['phone'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['phone_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['phone_end'] = val
+        
+    if id_card is not None:
+        values = id_card.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id_card'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['id_card_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['id_card_end'] = val
+        
+    if level_id is not None:
+        values = level_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['level_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['level_id_end'] = int(val)
+        
+    if status is not None:
+        values = status.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['status'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['status_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['status_end'] = int(val)
+        
+    if register_time is not None:
+        values = register_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['register_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['register_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['register_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if avatar is not None:
+        values = avatar.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['avatar'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['avatar_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['avatar_end'] = val
+        
+    if invited_user_id is not None:
+        values = invited_user_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['invited_user_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['invited_user_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['invited_user_id_end'] = int(val)
+        
+    if coin is not None:
+        values = coin.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['coin'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['coin_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['coin_end'] = int(val)
+        
+    if gender is not None:
+        values = gender.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['gender'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['gender_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['gender_end'] = int(val)
+        
+    if last_active_time is not None:
+        values = last_active_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['last_active_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['last_active_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['last_active_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if name is not None:
+        values = name.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['name'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['name_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['name_end'] = val
+        
+    if is_agree is not None:
+        values = is_agree.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['is_agree'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['is_agree_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['is_agree_end'] = int(val)
+        
+    if parent_id is not None:
+        values = parent_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['parent_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['parent_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['parent_id_end'] = int(val)
+        
+    if parent_id_history is not None:
+        values = parent_id_history.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['parent_id_history'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['parent_id_history_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['parent_id_history_end'] = val
+        
+    if level_one_time is not None:
+        values = level_one_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_one_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['level_one_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['level_one_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if level_two_time is not None:
+        values = level_two_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_two_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['level_two_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['level_two_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if level_three_time is not None:
+        values = level_three_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_three_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['level_three_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['level_three_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if level_top_time is not None:
+        values = level_top_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_top_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['level_top_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['level_top_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if manage_id is not None:
+        values = manage_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['manage_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['manage_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['manage_id_end'] = int(val)
+        
+
+    if s_username is not None:
+        search_items['username'] = '%' + s_username + '%'
+        
+    if s_email is not None:
+        search_items['email'] = '%' + s_email + '%'
+        
+    if s_open_id is not None:
+        search_items['open_id'] = '%' + s_open_id + '%'
+        
+    if s_union_id is not None:
+        search_items['union_id'] = '%' + s_union_id + '%'
+        
+    if s_password is not None:
+        search_items['password'] = '%' + s_password + '%'
+        
+    if s_nickname is not None:
+        search_items['nickname'] = '%' + s_nickname + '%'
+        
+    if s_phone is not None:
+        search_items['phone'] = '%' + s_phone + '%'
+        
+    if s_id_card is not None:
+        search_items['id_card'] = '%' + s_id_card + '%'
+        
+    if s_avatar is not None:
+        search_items['avatar'] = '%' + s_avatar + '%'
+        
+    if s_name is not None:
+        search_items['name'] = '%' + s_name + '%'
+        
+    if s_parent_id_history is not None:
+        search_items['parent_id_history'] = '%' + s_parent_id_history + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_username is not None:
+        values = l_username.split(',')
+        values = [val for val in values]
+        set_items['username'] = values
+        
+    if l_email is not None:
+        values = l_email.split(',')
+        values = [val for val in values]
+        set_items['email'] = values
+        
+    if l_open_id is not None:
+        values = l_open_id.split(',')
+        values = [val for val in values]
+        set_items['open_id'] = values
+        
+    if l_union_id is not None:
+        values = l_union_id.split(',')
+        values = [val for val in values]
+        set_items['union_id'] = values
+        
+    if l_password is not None:
+        values = l_password.split(',')
+        values = [val for val in values]
+        set_items['password'] = values
+        
+    if l_nickname is not None:
+        values = l_nickname.split(',')
+        values = [val for val in values]
+        set_items['nickname'] = values
+        
+    if l_phone is not None:
+        values = l_phone.split(',')
+        values = [val for val in values]
+        set_items['phone'] = values
+        
+    if l_id_card is not None:
+        values = l_id_card.split(',')
+        values = [val for val in values]
+        set_items['id_card'] = values
+        
+    if l_level_id is not None:
+        values = l_level_id.split(',')
+        values = [int(val) for val in values]
+        set_items['level_id'] = values
+        
+    if l_status is not None:
+        values = l_status.split(',')
+        values = [int(val) for val in values]
+        set_items['status'] = values
+        
+    if l_register_time is not None:
+        values = l_register_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['register_time'] = values
+        
+    if l_avatar is not None:
+        values = l_avatar.split(',')
+        values = [val for val in values]
+        set_items['avatar'] = values
+        
+    if l_invited_user_id is not None:
+        values = l_invited_user_id.split(',')
+        values = [int(val) for val in values]
+        set_items['invited_user_id'] = values
+        
+    if l_coin is not None:
+        values = l_coin.split(',')
+        values = [int(val) for val in values]
+        set_items['coin'] = values
+        
+    if l_gender is not None:
+        values = l_gender.split(',')
+        values = [int(val) for val in values]
+        set_items['gender'] = values
+        
+    if l_last_active_time is not None:
+        values = l_last_active_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['last_active_time'] = values
+        
+    if l_name is not None:
+        values = l_name.split(',')
+        values = [val for val in values]
+        set_items['name'] = values
+        
+    if l_is_agree is not None:
+        values = l_is_agree.split(',')
+        values = [int(val) for val in values]
+        set_items['is_agree'] = values
+        
+    if l_parent_id is not None:
+        values = l_parent_id.split(',')
+        values = [int(val) for val in values]
+        set_items['parent_id'] = values
+        
+    if l_parent_id_history is not None:
+        values = l_parent_id_history.split(',')
+        values = [val for val in values]
+        set_items['parent_id_history'] = values
+        
+    if l_level_one_time is not None:
+        values = l_level_one_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['level_one_time'] = values
+        
+    if l_level_two_time is not None:
+        values = l_level_two_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['level_two_time'] = values
+        
+    if l_level_three_time is not None:
+        values = l_level_three_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['level_three_time'] = values
+        
+    if l_level_top_time is not None:
+        values = l_level_top_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['level_top_time'] = values
+        
+    if l_manage_id is not None:
+        values = l_manage_id.split(',')
+        values = [int(val) for val in values]
+        set_items['manage_id'] = values
+            
+    
+    
+    order_items = dict()
+    if order_by is not None:
+        orders = order_by.split(',')
+        for order in orders:
+            if order.startswith('-'):
+                order_items[order[1:]] = 'desc'
+            else:
+                order_items[order] = 'asc'
+    data = d_db.filter_user(items, search_items, set_items, order_items, page, page_size)
+    c = d_db.filter_count_user(items, search_items, set_items)
+    
+    return FilterResUser(data=data, total=c)
+
+
+@router.get(f'/user/fast_filter', response_model=FilterResUser)
+async def fast_filter_user(
+        id: Optional[str] = None, 
+        username: Optional[str] = None, 
+        email: Optional[str] = None, 
+        open_id: Optional[str] = None, 
+        union_id: Optional[str] = None, 
+        password: Optional[str] = None, 
+        nickname: Optional[str] = None, 
+        phone: Optional[str] = None, 
+        id_card: Optional[str] = None, 
+        level_id: Optional[str] = None, 
+        status: Optional[str] = None, 
+        register_time: Optional[str] = None, 
+        avatar: Optional[str] = None, 
+        invited_user_id: Optional[str] = None, 
+        coin: Optional[str] = None, 
+        gender: Optional[str] = None, 
+        last_active_time: Optional[str] = None, 
+        name: Optional[str] = None, 
+        is_agree: Optional[str] = None, 
+        parent_id: Optional[str] = None, 
+        parent_id_history: Optional[str] = None, 
+        level_one_time: Optional[str] = None, 
+        level_two_time: Optional[str] = None, 
+        level_three_time: Optional[str] = None, 
+        level_top_time: Optional[str] = None, 
+        manage_id: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_username: Optional[str] = None, 
+        l_email: Optional[str] = None, 
+        l_open_id: Optional[str] = None, 
+        l_union_id: Optional[str] = None, 
+        l_password: Optional[str] = None, 
+        l_nickname: Optional[str] = None, 
+        l_phone: Optional[str] = None, 
+        l_id_card: Optional[str] = None, 
+        l_level_id: Optional[str] = None, 
+        l_status: Optional[str] = None, 
+        l_register_time: Optional[str] = None, 
+        l_avatar: Optional[str] = None, 
+        l_invited_user_id: Optional[str] = None, 
+        l_coin: Optional[str] = None, 
+        l_gender: Optional[str] = None, 
+        l_last_active_time: Optional[str] = None, 
+        l_name: Optional[str] = None, 
+        l_is_agree: Optional[str] = None, 
+        l_parent_id: Optional[str] = None, 
+        l_parent_id_history: Optional[str] = None, 
+        l_level_one_time: Optional[str] = None, 
+        l_level_two_time: Optional[str] = None, 
+        l_level_three_time: Optional[str] = None, 
+        l_level_top_time: Optional[str] = None, 
+        l_manage_id: Optional[str] = None, 
+        s_username: Optional[str] = None, 
+        s_email: Optional[str] = None, 
+        s_open_id: Optional[str] = None, 
+        s_union_id: Optional[str] = None, 
+        s_password: Optional[str] = None, 
+        s_nickname: Optional[str] = None, 
+        s_phone: Optional[str] = None, 
+        s_id_card: Optional[str] = None, 
+        s_avatar: Optional[str] = None, 
+        s_name: Optional[str] = None, 
+        s_parent_id_history: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResUser:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if username is not None:
+        values = username.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['username'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['username_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['username_end'] = val
+        
+    if email is not None:
+        values = email.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['email'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['email_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['email_end'] = val
+        
+    if open_id is not None:
+        values = open_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['open_id'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['open_id_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['open_id_end'] = val
+        
+    if union_id is not None:
+        values = union_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['union_id'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['union_id_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['union_id_end'] = val
+        
+    if password is not None:
+        values = password.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['password'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['password_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['password_end'] = val
+        
+    if nickname is not None:
+        values = nickname.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['nickname'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['nickname_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['nickname_end'] = val
+        
+    if phone is not None:
+        values = phone.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['phone'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['phone_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['phone_end'] = val
+        
+    if id_card is not None:
+        values = id_card.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id_card'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['id_card_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['id_card_end'] = val
+        
+    if level_id is not None:
+        values = level_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['level_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['level_id_end'] = int(val)
+        
+    if status is not None:
+        values = status.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['status'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['status_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['status_end'] = int(val)
+        
+    if register_time is not None:
+        values = register_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['register_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['register_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['register_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if avatar is not None:
+        values = avatar.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['avatar'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['avatar_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['avatar_end'] = val
+        
+    if invited_user_id is not None:
+        values = invited_user_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['invited_user_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['invited_user_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['invited_user_id_end'] = int(val)
+        
+    if coin is not None:
+        values = coin.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['coin'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['coin_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['coin_end'] = int(val)
+        
+    if gender is not None:
+        values = gender.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['gender'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['gender_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['gender_end'] = int(val)
+        
+    if last_active_time is not None:
+        values = last_active_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['last_active_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['last_active_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['last_active_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if name is not None:
+        values = name.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['name'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['name_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['name_end'] = val
+        
+    if is_agree is not None:
+        values = is_agree.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['is_agree'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['is_agree_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['is_agree_end'] = int(val)
+        
+    if parent_id is not None:
+        values = parent_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['parent_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['parent_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['parent_id_end'] = int(val)
+        
+    if parent_id_history is not None:
+        values = parent_id_history.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['parent_id_history'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['parent_id_history_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['parent_id_history_end'] = val
+        
+    if level_one_time is not None:
+        values = level_one_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_one_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['level_one_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['level_one_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if level_two_time is not None:
+        values = level_two_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_two_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['level_two_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['level_two_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if level_three_time is not None:
+        values = level_three_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_three_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['level_three_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['level_three_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if level_top_time is not None:
+        values = level_top_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_top_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['level_top_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['level_top_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if manage_id is not None:
+        values = manage_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['manage_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['manage_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['manage_id_end'] = int(val)
+        
+
+    if s_username is not None:
+        search_items['username'] = '%' + s_username + '%'
+        
+    if s_email is not None:
+        search_items['email'] = '%' + s_email + '%'
+        
+    if s_open_id is not None:
+        search_items['open_id'] = '%' + s_open_id + '%'
+        
+    if s_union_id is not None:
+        search_items['union_id'] = '%' + s_union_id + '%'
+        
+    if s_password is not None:
+        search_items['password'] = '%' + s_password + '%'
+        
+    if s_nickname is not None:
+        search_items['nickname'] = '%' + s_nickname + '%'
+        
+    if s_phone is not None:
+        search_items['phone'] = '%' + s_phone + '%'
+        
+    if s_id_card is not None:
+        search_items['id_card'] = '%' + s_id_card + '%'
+        
+    if s_avatar is not None:
+        search_items['avatar'] = '%' + s_avatar + '%'
+        
+    if s_name is not None:
+        search_items['name'] = '%' + s_name + '%'
+        
+    if s_parent_id_history is not None:
+        search_items['parent_id_history'] = '%' + s_parent_id_history + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_username is not None:
+        values = l_username.split(',')
+        values = [val for val in values]
+        set_items['username'] = values
+        
+    if l_email is not None:
+        values = l_email.split(',')
+        values = [val for val in values]
+        set_items['email'] = values
+        
+    if l_open_id is not None:
+        values = l_open_id.split(',')
+        values = [val for val in values]
+        set_items['open_id'] = values
+        
+    if l_union_id is not None:
+        values = l_union_id.split(',')
+        values = [val for val in values]
+        set_items['union_id'] = values
+        
+    if l_password is not None:
+        values = l_password.split(',')
+        values = [val for val in values]
+        set_items['password'] = values
+        
+    if l_nickname is not None:
+        values = l_nickname.split(',')
+        values = [val for val in values]
+        set_items['nickname'] = values
+        
+    if l_phone is not None:
+        values = l_phone.split(',')
+        values = [val for val in values]
+        set_items['phone'] = values
+        
+    if l_id_card is not None:
+        values = l_id_card.split(',')
+        values = [val for val in values]
+        set_items['id_card'] = values
+        
+    if l_level_id is not None:
+        values = l_level_id.split(',')
+        values = [int(val) for val in values]
+        set_items['level_id'] = values
+        
+    if l_status is not None:
+        values = l_status.split(',')
+        values = [int(val) for val in values]
+        set_items['status'] = values
+        
+    if l_register_time is not None:
+        values = l_register_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['register_time'] = values
+        
+    if l_avatar is not None:
+        values = l_avatar.split(',')
+        values = [val for val in values]
+        set_items['avatar'] = values
+        
+    if l_invited_user_id is not None:
+        values = l_invited_user_id.split(',')
+        values = [int(val) for val in values]
+        set_items['invited_user_id'] = values
+        
+    if l_coin is not None:
+        values = l_coin.split(',')
+        values = [int(val) for val in values]
+        set_items['coin'] = values
+        
+    if l_gender is not None:
+        values = l_gender.split(',')
+        values = [int(val) for val in values]
+        set_items['gender'] = values
+        
+    if l_last_active_time is not None:
+        values = l_last_active_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['last_active_time'] = values
+        
+    if l_name is not None:
+        values = l_name.split(',')
+        values = [val for val in values]
+        set_items['name'] = values
+        
+    if l_is_agree is not None:
+        values = l_is_agree.split(',')
+        values = [int(val) for val in values]
+        set_items['is_agree'] = values
+        
+    if l_parent_id is not None:
+        values = l_parent_id.split(',')
+        values = [int(val) for val in values]
+        set_items['parent_id'] = values
+        
+    if l_parent_id_history is not None:
+        values = l_parent_id_history.split(',')
+        values = [val for val in values]
+        set_items['parent_id_history'] = values
+        
+    if l_level_one_time is not None:
+        values = l_level_one_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['level_one_time'] = values
+        
+    if l_level_two_time is not None:
+        values = l_level_two_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['level_two_time'] = values
+        
+    if l_level_three_time is not None:
+        values = l_level_three_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['level_three_time'] = values
+        
+    if l_level_top_time is not None:
+        values = l_level_top_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['level_top_time'] = values
+        
+    if l_manage_id is not None:
+        values = l_manage_id.split(',')
+        values = [int(val) for val in values]
+        set_items['manage_id'] = values
+            
+    
+    data = d_db.filter_user(items, search_items, set_items, page, page_size)
+    return FilterResUser(data=data, total=-1)

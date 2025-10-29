@@ -9,6 +9,394 @@ def model2dict(item) -> dict:
     return {key: val for key, val in item.dict().items() if val is not None}
 
     
+def insert_balance(item: CreateBalance, db: Optional[SessionLocal] = None) -> SBalance:
+    data = model2dict(item)
+    t = TBalance(**data)
+    if db:
+        db.add(t)
+        db.flush()
+        db.refresh(t)
+        return SAddress.parse_obj(t.__dict__)
+    with Dao() as db:
+        db.add(t)
+        db.commit()
+        db.refresh(t)
+    return SBalance.parse_obj(t.__dict__)
+
+    
+def delete_balance(balance_id: int, db: Optional[SessionLocal] = None):
+    if db:
+        db.query(TBalance).where(TBalance.id == balance_id).delete()
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TBalance).where(TBalance.id == balance_id).delete()
+        db.commit()
+
+    
+def update_balance(item: SBalance, db: Optional[SessionLocal] = None):
+    data = model2dict(item)
+    data.pop('id')
+    if db:
+        db.query(TBalance).where(TBalance.id == item.id).update(data)
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TBalance).where(TBalance.id == item.id).update(data)
+        db.commit()
+
+    
+def get_balance(balance_id: int) -> Optional[SBalance]:
+    with Dao() as db:
+        t = db.query(TBalance).where(TBalance.id == balance_id).first()
+        if t:
+            return SBalance.parse_obj(t.__dict__)
+        else:
+            return None
+
+
+def filter_balance(
+    items: dict, 
+    search_items: dict={}, 
+    set_items: dict={}, 
+    order_items: dict={},
+    page: int = 1,
+    page_size: int = 20) -> List[SBalance]:
+    with Dao() as db:
+        q = db.query(TBalance)
+
+
+        if 'id' in items:
+            q = q.where(TBalance.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TBalance.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TBalance.id <= items['id_end'])
+        
+        if 'user_id' in items:
+            q = q.where(TBalance.user_id == items['user_id'])
+        if 'user_id_start' in items:
+            q = q.where(TBalance.user_id >= items['user_id_start'])
+        if 'user_id_end' in items:
+            q = q.where(TBalance.user_id <= items['user_id_end'])
+        
+        if 'change' in items:
+            q = q.where(TBalance.change == items['change'])
+        if 'change_start' in items:
+            q = q.where(TBalance.change >= items['change_start'])
+        if 'change_end' in items:
+            q = q.where(TBalance.change <= items['change_end'])
+        
+        if 'balance' in items:
+            q = q.where(TBalance.balance == items['balance'])
+        if 'balance_start' in items:
+            q = q.where(TBalance.balance >= items['balance_start'])
+        if 'balance_end' in items:
+            q = q.where(TBalance.balance <= items['balance_end'])
+        
+        if 'type' in items:
+            q = q.where(TBalance.type == items['type'])
+        if 'type_start' in items:
+            q = q.where(TBalance.type >= items['type_start'])
+        if 'type_end' in items:
+            q = q.where(TBalance.type <= items['type_end'])
+        
+        if 'description' in items:
+            q = q.where(TBalance.description == items['description'])
+        if 'description_start' in items:
+            q = q.where(TBalance.description >= items['description_start'])
+        if 'description_end' in items:
+            q = q.where(TBalance.description <= items['description_end'])
+        
+        if 'create_time' in items:
+            q = q.where(TBalance.create_time == items['create_time'])
+        if 'create_time_start' in items:
+            q = q.where(TBalance.create_time >= items['create_time_start'])
+        if 'create_time_end' in items:
+            q = q.where(TBalance.create_time <= items['create_time_end'])
+        
+        if 'user_withdraw_id' in items:
+            q = q.where(TBalance.user_withdraw_id == items['user_withdraw_id'])
+        if 'user_withdraw_id_start' in items:
+            q = q.where(TBalance.user_withdraw_id >= items['user_withdraw_id_start'])
+        if 'user_withdraw_id_end' in items:
+            q = q.where(TBalance.user_withdraw_id <= items['user_withdraw_id_end'])
+        
+        if 'operator_id' in items:
+            q = q.where(TBalance.operator_id == items['operator_id'])
+        if 'operator_id_start' in items:
+            q = q.where(TBalance.operator_id >= items['operator_id_start'])
+        if 'operator_id_end' in items:
+            q = q.where(TBalance.operator_id <= items['operator_id_end'])
+        
+        if 'out_trade_no' in items:
+            q = q.where(TBalance.out_trade_no == items['out_trade_no'])
+        if 'out_trade_no_start' in items:
+            q = q.where(TBalance.out_trade_no >= items['out_trade_no_start'])
+        if 'out_trade_no_end' in items:
+            q = q.where(TBalance.out_trade_no <= items['out_trade_no_end'])
+        
+        if 'good_id' in items:
+            q = q.where(TBalance.good_id == items['good_id'])
+        if 'good_id_start' in items:
+            q = q.where(TBalance.good_id >= items['good_id_start'])
+        if 'good_id_end' in items:
+            q = q.where(TBalance.good_id <= items['good_id_end'])
+        
+        if 'good_title' in items:
+            q = q.where(TBalance.good_title == items['good_title'])
+        if 'good_title_start' in items:
+            q = q.where(TBalance.good_title >= items['good_title_start'])
+        if 'good_title_end' in items:
+            q = q.where(TBalance.good_title <= items['good_title_end'])
+        
+        if 'good_num' in items:
+            q = q.where(TBalance.good_num == items['good_num'])
+        if 'good_num_start' in items:
+            q = q.where(TBalance.good_num >= items['good_num_start'])
+        if 'good_num_end' in items:
+            q = q.where(TBalance.good_num <= items['good_num_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TBalance.id.in_(set_items['id']))
+        
+        if 'user_id' in set_items:
+            q = q.where(TBalance.user_id.in_(set_items['user_id']))
+        
+        if 'change' in set_items:
+            q = q.where(TBalance.change.in_(set_items['change']))
+        
+        if 'balance' in set_items:
+            q = q.where(TBalance.balance.in_(set_items['balance']))
+        
+        if 'type' in set_items:
+            q = q.where(TBalance.type.in_(set_items['type']))
+        
+        if 'description' in set_items:
+            q = q.where(TBalance.description.in_(set_items['description']))
+        
+        if 'create_time' in set_items:
+            q = q.where(TBalance.create_time.in_(set_items['create_time']))
+        
+        if 'user_withdraw_id' in set_items:
+            q = q.where(TBalance.user_withdraw_id.in_(set_items['user_withdraw_id']))
+        
+        if 'operator_id' in set_items:
+            q = q.where(TBalance.operator_id.in_(set_items['operator_id']))
+        
+        if 'out_trade_no' in set_items:
+            q = q.where(TBalance.out_trade_no.in_(set_items['out_trade_no']))
+        
+        if 'good_id' in set_items:
+            q = q.where(TBalance.good_id.in_(set_items['good_id']))
+        
+        if 'good_title' in set_items:
+            q = q.where(TBalance.good_title.in_(set_items['good_title']))
+        
+        if 'good_num' in set_items:
+            q = q.where(TBalance.good_num.in_(set_items['good_num']))
+        
+
+        if 'type' in search_items:
+            q = q.where(TBalance.type.like(search_items['type']))
+        
+        if 'description' in search_items:
+            q = q.where(TBalance.description.like(search_items['description']))
+        
+        if 'out_trade_no' in search_items:
+            q = q.where(TBalance.out_trade_no.like(search_items['out_trade_no']))
+        
+        if 'good_id' in search_items:
+            q = q.where(TBalance.good_id.like(search_items['good_id']))
+        
+        if 'good_title' in search_items:
+            q = q.where(TBalance.good_title.like(search_items['good_title']))
+        
+        if 'good_num' in search_items:
+            q = q.where(TBalance.good_num.like(search_items['good_num']))
+        
+    
+
+        orders = []
+        for col, val in order_items.items():
+            if val == 'asc':          
+                #orders.append(TBalance.good_num.asc())
+                orders.append(TBalance.id.asc())
+            elif val == 'desc':
+                #orders.append(TBalance.good_num.desc())
+                orders.append(TBalance.id.desc())
+            else:
+                raise HTTPException(400, 'order value must be asc or desc')
+        if len(order_items) > 0:
+            q = q.order_by(*orders)
+        
+        t_balance_list = q.offset(page*page_size-page_size).limit(page_size).all()
+        return [SBalance.parse_obj(t.__dict__) for t in t_balance_list]
+
+
+def filter_count_balance(items: dict, search_items: dict={}, set_items: dict={}) -> int:
+    with Dao() as db:
+        q = db.query(TBalance)
+
+
+        if 'id' in items:
+            q = q.where(TBalance.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TBalance.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TBalance.id <= items['id_end'])
+        
+        if 'user_id' in items:
+            q = q.where(TBalance.user_id == items['user_id'])
+        if 'user_id_start' in items:
+            q = q.where(TBalance.user_id >= items['user_id_start'])
+        if 'user_id_end' in items:
+            q = q.where(TBalance.user_id <= items['user_id_end'])
+        
+        if 'change' in items:
+            q = q.where(TBalance.change == items['change'])
+        if 'change_start' in items:
+            q = q.where(TBalance.change >= items['change_start'])
+        if 'change_end' in items:
+            q = q.where(TBalance.change <= items['change_end'])
+        
+        if 'balance' in items:
+            q = q.where(TBalance.balance == items['balance'])
+        if 'balance_start' in items:
+            q = q.where(TBalance.balance >= items['balance_start'])
+        if 'balance_end' in items:
+            q = q.where(TBalance.balance <= items['balance_end'])
+        
+        if 'type' in items:
+            q = q.where(TBalance.type == items['type'])
+        if 'type_start' in items:
+            q = q.where(TBalance.type >= items['type_start'])
+        if 'type_end' in items:
+            q = q.where(TBalance.type <= items['type_end'])
+        
+        if 'description' in items:
+            q = q.where(TBalance.description == items['description'])
+        if 'description_start' in items:
+            q = q.where(TBalance.description >= items['description_start'])
+        if 'description_end' in items:
+            q = q.where(TBalance.description <= items['description_end'])
+        
+        if 'create_time' in items:
+            q = q.where(TBalance.create_time == items['create_time'])
+        if 'create_time_start' in items:
+            q = q.where(TBalance.create_time >= items['create_time_start'])
+        if 'create_time_end' in items:
+            q = q.where(TBalance.create_time <= items['create_time_end'])
+        
+        if 'user_withdraw_id' in items:
+            q = q.where(TBalance.user_withdraw_id == items['user_withdraw_id'])
+        if 'user_withdraw_id_start' in items:
+            q = q.where(TBalance.user_withdraw_id >= items['user_withdraw_id_start'])
+        if 'user_withdraw_id_end' in items:
+            q = q.where(TBalance.user_withdraw_id <= items['user_withdraw_id_end'])
+        
+        if 'operator_id' in items:
+            q = q.where(TBalance.operator_id == items['operator_id'])
+        if 'operator_id_start' in items:
+            q = q.where(TBalance.operator_id >= items['operator_id_start'])
+        if 'operator_id_end' in items:
+            q = q.where(TBalance.operator_id <= items['operator_id_end'])
+        
+        if 'out_trade_no' in items:
+            q = q.where(TBalance.out_trade_no == items['out_trade_no'])
+        if 'out_trade_no_start' in items:
+            q = q.where(TBalance.out_trade_no >= items['out_trade_no_start'])
+        if 'out_trade_no_end' in items:
+            q = q.where(TBalance.out_trade_no <= items['out_trade_no_end'])
+        
+        if 'good_id' in items:
+            q = q.where(TBalance.good_id == items['good_id'])
+        if 'good_id_start' in items:
+            q = q.where(TBalance.good_id >= items['good_id_start'])
+        if 'good_id_end' in items:
+            q = q.where(TBalance.good_id <= items['good_id_end'])
+        
+        if 'good_title' in items:
+            q = q.where(TBalance.good_title == items['good_title'])
+        if 'good_title_start' in items:
+            q = q.where(TBalance.good_title >= items['good_title_start'])
+        if 'good_title_end' in items:
+            q = q.where(TBalance.good_title <= items['good_title_end'])
+        
+        if 'good_num' in items:
+            q = q.where(TBalance.good_num == items['good_num'])
+        if 'good_num_start' in items:
+            q = q.where(TBalance.good_num >= items['good_num_start'])
+        if 'good_num_end' in items:
+            q = q.where(TBalance.good_num <= items['good_num_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TBalance.id.in_(set_items['id']))
+        
+        if 'user_id' in set_items:
+            q = q.where(TBalance.user_id.in_(set_items['user_id']))
+        
+        if 'change' in set_items:
+            q = q.where(TBalance.change.in_(set_items['change']))
+        
+        if 'balance' in set_items:
+            q = q.where(TBalance.balance.in_(set_items['balance']))
+        
+        if 'type' in set_items:
+            q = q.where(TBalance.type.in_(set_items['type']))
+        
+        if 'description' in set_items:
+            q = q.where(TBalance.description.in_(set_items['description']))
+        
+        if 'create_time' in set_items:
+            q = q.where(TBalance.create_time.in_(set_items['create_time']))
+        
+        if 'user_withdraw_id' in set_items:
+            q = q.where(TBalance.user_withdraw_id.in_(set_items['user_withdraw_id']))
+        
+        if 'operator_id' in set_items:
+            q = q.where(TBalance.operator_id.in_(set_items['operator_id']))
+        
+        if 'out_trade_no' in set_items:
+            q = q.where(TBalance.out_trade_no.in_(set_items['out_trade_no']))
+        
+        if 'good_id' in set_items:
+            q = q.where(TBalance.good_id.in_(set_items['good_id']))
+        
+        if 'good_title' in set_items:
+            q = q.where(TBalance.good_title.in_(set_items['good_title']))
+        
+        if 'good_num' in set_items:
+            q = q.where(TBalance.good_num.in_(set_items['good_num']))
+        
+
+        if 'type' in search_items:
+            q = q.where(TBalance.type.like(search_items['type']))
+        
+        if 'description' in search_items:
+            q = q.where(TBalance.description.like(search_items['description']))
+        
+        if 'out_trade_no' in search_items:
+            q = q.where(TBalance.out_trade_no.like(search_items['out_trade_no']))
+        
+        if 'good_id' in search_items:
+            q = q.where(TBalance.good_id.like(search_items['good_id']))
+        
+        if 'good_title' in search_items:
+            q = q.where(TBalance.good_title.like(search_items['good_title']))
+        
+        if 'good_num' in search_items:
+            q = q.where(TBalance.good_num.like(search_items['good_num']))
+        
+    
+        c = q.count()
+        return c
+
+    
 def insert_chinese_point_subject(item: CreateChinesePointSubject, db: Optional[SessionLocal] = None) -> SChinesePointSubject:
     data = model2dict(item)
     t = TChinesePointSubject(**data)
@@ -351,6 +739,276 @@ def filter_count_chinese_point_subject(items: dict, search_items: dict={}, set_i
         
         if 'knowledge_list' in search_items:
             q = q.where(TChinesePointSubject.knowledge_list.like(search_items['knowledge_list']))
+        
+    
+        c = q.count()
+        return c
+
+    
+def insert_coin(item: CreateCoin, db: Optional[SessionLocal] = None) -> SCoin:
+    data = model2dict(item)
+    t = TCoin(**data)
+    if db:
+        db.add(t)
+        db.flush()
+        db.refresh(t)
+        return SAddress.parse_obj(t.__dict__)
+    with Dao() as db:
+        db.add(t)
+        db.commit()
+        db.refresh(t)
+    return SCoin.parse_obj(t.__dict__)
+
+    
+def delete_coin(coin_id: int, db: Optional[SessionLocal] = None):
+    if db:
+        db.query(TCoin).where(TCoin.id == coin_id).delete()
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TCoin).where(TCoin.id == coin_id).delete()
+        db.commit()
+
+    
+def update_coin(item: SCoin, db: Optional[SessionLocal] = None):
+    data = model2dict(item)
+    data.pop('id')
+    if db:
+        db.query(TCoin).where(TCoin.id == item.id).update(data)
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TCoin).where(TCoin.id == item.id).update(data)
+        db.commit()
+
+    
+def get_coin(coin_id: int) -> Optional[SCoin]:
+    with Dao() as db:
+        t = db.query(TCoin).where(TCoin.id == coin_id).first()
+        if t:
+            return SCoin.parse_obj(t.__dict__)
+        else:
+            return None
+
+
+def filter_coin(
+    items: dict, 
+    search_items: dict={}, 
+    set_items: dict={}, 
+    order_items: dict={},
+    page: int = 1,
+    page_size: int = 20) -> List[SCoin]:
+    with Dao() as db:
+        q = db.query(TCoin)
+
+
+        if 'id' in items:
+            q = q.where(TCoin.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TCoin.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TCoin.id <= items['id_end'])
+        
+        if 'user_id' in items:
+            q = q.where(TCoin.user_id == items['user_id'])
+        if 'user_id_start' in items:
+            q = q.where(TCoin.user_id >= items['user_id_start'])
+        if 'user_id_end' in items:
+            q = q.where(TCoin.user_id <= items['user_id_end'])
+        
+        if 'change' in items:
+            q = q.where(TCoin.change == items['change'])
+        if 'change_start' in items:
+            q = q.where(TCoin.change >= items['change_start'])
+        if 'change_end' in items:
+            q = q.where(TCoin.change <= items['change_end'])
+        
+        if 'coin' in items:
+            q = q.where(TCoin.coin == items['coin'])
+        if 'coin_start' in items:
+            q = q.where(TCoin.coin >= items['coin_start'])
+        if 'coin_end' in items:
+            q = q.where(TCoin.coin <= items['coin_end'])
+        
+        if 'type' in items:
+            q = q.where(TCoin.type == items['type'])
+        if 'type_start' in items:
+            q = q.where(TCoin.type >= items['type_start'])
+        if 'type_end' in items:
+            q = q.where(TCoin.type <= items['type_end'])
+        
+        if 'description' in items:
+            q = q.where(TCoin.description == items['description'])
+        if 'description_start' in items:
+            q = q.where(TCoin.description >= items['description_start'])
+        if 'description_end' in items:
+            q = q.where(TCoin.description <= items['description_end'])
+        
+        if 'create_time' in items:
+            q = q.where(TCoin.create_time == items['create_time'])
+        if 'create_time_start' in items:
+            q = q.where(TCoin.create_time >= items['create_time_start'])
+        if 'create_time_end' in items:
+            q = q.where(TCoin.create_time <= items['create_time_end'])
+        
+        if 'out_trade_no' in items:
+            q = q.where(TCoin.out_trade_no == items['out_trade_no'])
+        if 'out_trade_no_start' in items:
+            q = q.where(TCoin.out_trade_no >= items['out_trade_no_start'])
+        if 'out_trade_no_end' in items:
+            q = q.where(TCoin.out_trade_no <= items['out_trade_no_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TCoin.id.in_(set_items['id']))
+        
+        if 'user_id' in set_items:
+            q = q.where(TCoin.user_id.in_(set_items['user_id']))
+        
+        if 'change' in set_items:
+            q = q.where(TCoin.change.in_(set_items['change']))
+        
+        if 'coin' in set_items:
+            q = q.where(TCoin.coin.in_(set_items['coin']))
+        
+        if 'type' in set_items:
+            q = q.where(TCoin.type.in_(set_items['type']))
+        
+        if 'description' in set_items:
+            q = q.where(TCoin.description.in_(set_items['description']))
+        
+        if 'create_time' in set_items:
+            q = q.where(TCoin.create_time.in_(set_items['create_time']))
+        
+        if 'out_trade_no' in set_items:
+            q = q.where(TCoin.out_trade_no.in_(set_items['out_trade_no']))
+        
+
+        if 'type' in search_items:
+            q = q.where(TCoin.type.like(search_items['type']))
+        
+        if 'description' in search_items:
+            q = q.where(TCoin.description.like(search_items['description']))
+        
+        if 'out_trade_no' in search_items:
+            q = q.where(TCoin.out_trade_no.like(search_items['out_trade_no']))
+        
+    
+
+        orders = []
+        for col, val in order_items.items():
+            if val == 'asc':          
+                #orders.append(TCoin.out_trade_no.asc())
+                orders.append(TCoin.id.asc())
+            elif val == 'desc':
+                #orders.append(TCoin.out_trade_no.desc())
+                orders.append(TCoin.id.desc())
+            else:
+                raise HTTPException(400, 'order value must be asc or desc')
+        if len(order_items) > 0:
+            q = q.order_by(*orders)
+        
+        t_coin_list = q.offset(page*page_size-page_size).limit(page_size).all()
+        return [SCoin.parse_obj(t.__dict__) for t in t_coin_list]
+
+
+def filter_count_coin(items: dict, search_items: dict={}, set_items: dict={}) -> int:
+    with Dao() as db:
+        q = db.query(TCoin)
+
+
+        if 'id' in items:
+            q = q.where(TCoin.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TCoin.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TCoin.id <= items['id_end'])
+        
+        if 'user_id' in items:
+            q = q.where(TCoin.user_id == items['user_id'])
+        if 'user_id_start' in items:
+            q = q.where(TCoin.user_id >= items['user_id_start'])
+        if 'user_id_end' in items:
+            q = q.where(TCoin.user_id <= items['user_id_end'])
+        
+        if 'change' in items:
+            q = q.where(TCoin.change == items['change'])
+        if 'change_start' in items:
+            q = q.where(TCoin.change >= items['change_start'])
+        if 'change_end' in items:
+            q = q.where(TCoin.change <= items['change_end'])
+        
+        if 'coin' in items:
+            q = q.where(TCoin.coin == items['coin'])
+        if 'coin_start' in items:
+            q = q.where(TCoin.coin >= items['coin_start'])
+        if 'coin_end' in items:
+            q = q.where(TCoin.coin <= items['coin_end'])
+        
+        if 'type' in items:
+            q = q.where(TCoin.type == items['type'])
+        if 'type_start' in items:
+            q = q.where(TCoin.type >= items['type_start'])
+        if 'type_end' in items:
+            q = q.where(TCoin.type <= items['type_end'])
+        
+        if 'description' in items:
+            q = q.where(TCoin.description == items['description'])
+        if 'description_start' in items:
+            q = q.where(TCoin.description >= items['description_start'])
+        if 'description_end' in items:
+            q = q.where(TCoin.description <= items['description_end'])
+        
+        if 'create_time' in items:
+            q = q.where(TCoin.create_time == items['create_time'])
+        if 'create_time_start' in items:
+            q = q.where(TCoin.create_time >= items['create_time_start'])
+        if 'create_time_end' in items:
+            q = q.where(TCoin.create_time <= items['create_time_end'])
+        
+        if 'out_trade_no' in items:
+            q = q.where(TCoin.out_trade_no == items['out_trade_no'])
+        if 'out_trade_no_start' in items:
+            q = q.where(TCoin.out_trade_no >= items['out_trade_no_start'])
+        if 'out_trade_no_end' in items:
+            q = q.where(TCoin.out_trade_no <= items['out_trade_no_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TCoin.id.in_(set_items['id']))
+        
+        if 'user_id' in set_items:
+            q = q.where(TCoin.user_id.in_(set_items['user_id']))
+        
+        if 'change' in set_items:
+            q = q.where(TCoin.change.in_(set_items['change']))
+        
+        if 'coin' in set_items:
+            q = q.where(TCoin.coin.in_(set_items['coin']))
+        
+        if 'type' in set_items:
+            q = q.where(TCoin.type.in_(set_items['type']))
+        
+        if 'description' in set_items:
+            q = q.where(TCoin.description.in_(set_items['description']))
+        
+        if 'create_time' in set_items:
+            q = q.where(TCoin.create_time.in_(set_items['create_time']))
+        
+        if 'out_trade_no' in set_items:
+            q = q.where(TCoin.out_trade_no.in_(set_items['out_trade_no']))
+        
+
+        if 'type' in search_items:
+            q = q.where(TCoin.type.like(search_items['type']))
+        
+        if 'description' in search_items:
+            q = q.where(TCoin.description.like(search_items['description']))
+        
+        if 'out_trade_no' in search_items:
+            q = q.where(TCoin.out_trade_no.like(search_items['out_trade_no']))
         
     
         c = q.count()
@@ -2303,6 +2961,684 @@ def filter_count_sh_subject(items: dict, search_items: dict={}, set_items: dict=
         
         if 'knowledge_list' in search_items:
             q = q.where(TShSubject.knowledge_list.like(search_items['knowledge_list']))
+        
+    
+        c = q.count()
+        return c
+
+    
+def insert_user(item: CreateUser, db: Optional[SessionLocal] = None) -> SUser:
+    data = model2dict(item)
+    t = TUser(**data)
+    if db:
+        db.add(t)
+        db.flush()
+        db.refresh(t)
+        return SAddress.parse_obj(t.__dict__)
+    with Dao() as db:
+        db.add(t)
+        db.commit()
+        db.refresh(t)
+    return SUser.parse_obj(t.__dict__)
+
+    
+def delete_user(user_id: int, db: Optional[SessionLocal] = None):
+    if db:
+        db.query(TUser).where(TUser.id == user_id).delete()
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TUser).where(TUser.id == user_id).delete()
+        db.commit()
+
+    
+def update_user(item: SUser, db: Optional[SessionLocal] = None):
+    data = model2dict(item)
+    data.pop('id')
+    if db:
+        db.query(TUser).where(TUser.id == item.id).update(data)
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TUser).where(TUser.id == item.id).update(data)
+        db.commit()
+
+    
+def get_user(user_id: int) -> Optional[SUser]:
+    with Dao() as db:
+        t = db.query(TUser).where(TUser.id == user_id).first()
+        if t:
+            return SUser.parse_obj(t.__dict__)
+        else:
+            return None
+
+
+def filter_user(
+    items: dict, 
+    search_items: dict={}, 
+    set_items: dict={}, 
+    order_items: dict={},
+    page: int = 1,
+    page_size: int = 20) -> List[SUser]:
+    with Dao() as db:
+        q = db.query(TUser)
+
+
+        if 'id' in items:
+            q = q.where(TUser.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TUser.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TUser.id <= items['id_end'])
+        
+        if 'username' in items:
+            q = q.where(TUser.username == items['username'])
+        if 'username_start' in items:
+            q = q.where(TUser.username >= items['username_start'])
+        if 'username_end' in items:
+            q = q.where(TUser.username <= items['username_end'])
+        
+        if 'email' in items:
+            q = q.where(TUser.email == items['email'])
+        if 'email_start' in items:
+            q = q.where(TUser.email >= items['email_start'])
+        if 'email_end' in items:
+            q = q.where(TUser.email <= items['email_end'])
+        
+        if 'open_id' in items:
+            q = q.where(TUser.open_id == items['open_id'])
+        if 'open_id_start' in items:
+            q = q.where(TUser.open_id >= items['open_id_start'])
+        if 'open_id_end' in items:
+            q = q.where(TUser.open_id <= items['open_id_end'])
+        
+        if 'union_id' in items:
+            q = q.where(TUser.union_id == items['union_id'])
+        if 'union_id_start' in items:
+            q = q.where(TUser.union_id >= items['union_id_start'])
+        if 'union_id_end' in items:
+            q = q.where(TUser.union_id <= items['union_id_end'])
+        
+        if 'password' in items:
+            q = q.where(TUser.password == items['password'])
+        if 'password_start' in items:
+            q = q.where(TUser.password >= items['password_start'])
+        if 'password_end' in items:
+            q = q.where(TUser.password <= items['password_end'])
+        
+        if 'nickname' in items:
+            q = q.where(TUser.nickname == items['nickname'])
+        if 'nickname_start' in items:
+            q = q.where(TUser.nickname >= items['nickname_start'])
+        if 'nickname_end' in items:
+            q = q.where(TUser.nickname <= items['nickname_end'])
+        
+        if 'phone' in items:
+            q = q.where(TUser.phone == items['phone'])
+        if 'phone_start' in items:
+            q = q.where(TUser.phone >= items['phone_start'])
+        if 'phone_end' in items:
+            q = q.where(TUser.phone <= items['phone_end'])
+        
+        if 'id_card' in items:
+            q = q.where(TUser.id_card == items['id_card'])
+        if 'id_card_start' in items:
+            q = q.where(TUser.id_card >= items['id_card_start'])
+        if 'id_card_end' in items:
+            q = q.where(TUser.id_card <= items['id_card_end'])
+        
+        if 'level_id' in items:
+            q = q.where(TUser.level_id == items['level_id'])
+        if 'level_id_start' in items:
+            q = q.where(TUser.level_id >= items['level_id_start'])
+        if 'level_id_end' in items:
+            q = q.where(TUser.level_id <= items['level_id_end'])
+        
+        if 'status' in items:
+            q = q.where(TUser.status == items['status'])
+        if 'status_start' in items:
+            q = q.where(TUser.status >= items['status_start'])
+        if 'status_end' in items:
+            q = q.where(TUser.status <= items['status_end'])
+        
+        if 'register_time' in items:
+            q = q.where(TUser.register_time == items['register_time'])
+        if 'register_time_start' in items:
+            q = q.where(TUser.register_time >= items['register_time_start'])
+        if 'register_time_end' in items:
+            q = q.where(TUser.register_time <= items['register_time_end'])
+        
+        if 'avatar' in items:
+            q = q.where(TUser.avatar == items['avatar'])
+        if 'avatar_start' in items:
+            q = q.where(TUser.avatar >= items['avatar_start'])
+        if 'avatar_end' in items:
+            q = q.where(TUser.avatar <= items['avatar_end'])
+        
+        if 'invited_user_id' in items:
+            q = q.where(TUser.invited_user_id == items['invited_user_id'])
+        if 'invited_user_id_start' in items:
+            q = q.where(TUser.invited_user_id >= items['invited_user_id_start'])
+        if 'invited_user_id_end' in items:
+            q = q.where(TUser.invited_user_id <= items['invited_user_id_end'])
+        
+        if 'coin' in items:
+            q = q.where(TUser.coin == items['coin'])
+        if 'coin_start' in items:
+            q = q.where(TUser.coin >= items['coin_start'])
+        if 'coin_end' in items:
+            q = q.where(TUser.coin <= items['coin_end'])
+        
+        if 'gender' in items:
+            q = q.where(TUser.gender == items['gender'])
+        if 'gender_start' in items:
+            q = q.where(TUser.gender >= items['gender_start'])
+        if 'gender_end' in items:
+            q = q.where(TUser.gender <= items['gender_end'])
+        
+        if 'last_active_time' in items:
+            q = q.where(TUser.last_active_time == items['last_active_time'])
+        if 'last_active_time_start' in items:
+            q = q.where(TUser.last_active_time >= items['last_active_time_start'])
+        if 'last_active_time_end' in items:
+            q = q.where(TUser.last_active_time <= items['last_active_time_end'])
+        
+        if 'name' in items:
+            q = q.where(TUser.name == items['name'])
+        if 'name_start' in items:
+            q = q.where(TUser.name >= items['name_start'])
+        if 'name_end' in items:
+            q = q.where(TUser.name <= items['name_end'])
+        
+        if 'is_agree' in items:
+            q = q.where(TUser.is_agree == items['is_agree'])
+        if 'is_agree_start' in items:
+            q = q.where(TUser.is_agree >= items['is_agree_start'])
+        if 'is_agree_end' in items:
+            q = q.where(TUser.is_agree <= items['is_agree_end'])
+        
+        if 'parent_id' in items:
+            q = q.where(TUser.parent_id == items['parent_id'])
+        if 'parent_id_start' in items:
+            q = q.where(TUser.parent_id >= items['parent_id_start'])
+        if 'parent_id_end' in items:
+            q = q.where(TUser.parent_id <= items['parent_id_end'])
+        
+        if 'parent_id_history' in items:
+            q = q.where(TUser.parent_id_history == items['parent_id_history'])
+        if 'parent_id_history_start' in items:
+            q = q.where(TUser.parent_id_history >= items['parent_id_history_start'])
+        if 'parent_id_history_end' in items:
+            q = q.where(TUser.parent_id_history <= items['parent_id_history_end'])
+        
+        if 'level_one_time' in items:
+            q = q.where(TUser.level_one_time == items['level_one_time'])
+        if 'level_one_time_start' in items:
+            q = q.where(TUser.level_one_time >= items['level_one_time_start'])
+        if 'level_one_time_end' in items:
+            q = q.where(TUser.level_one_time <= items['level_one_time_end'])
+        
+        if 'level_two_time' in items:
+            q = q.where(TUser.level_two_time == items['level_two_time'])
+        if 'level_two_time_start' in items:
+            q = q.where(TUser.level_two_time >= items['level_two_time_start'])
+        if 'level_two_time_end' in items:
+            q = q.where(TUser.level_two_time <= items['level_two_time_end'])
+        
+        if 'level_three_time' in items:
+            q = q.where(TUser.level_three_time == items['level_three_time'])
+        if 'level_three_time_start' in items:
+            q = q.where(TUser.level_three_time >= items['level_three_time_start'])
+        if 'level_three_time_end' in items:
+            q = q.where(TUser.level_three_time <= items['level_three_time_end'])
+        
+        if 'level_top_time' in items:
+            q = q.where(TUser.level_top_time == items['level_top_time'])
+        if 'level_top_time_start' in items:
+            q = q.where(TUser.level_top_time >= items['level_top_time_start'])
+        if 'level_top_time_end' in items:
+            q = q.where(TUser.level_top_time <= items['level_top_time_end'])
+        
+        if 'manage_id' in items:
+            q = q.where(TUser.manage_id == items['manage_id'])
+        if 'manage_id_start' in items:
+            q = q.where(TUser.manage_id >= items['manage_id_start'])
+        if 'manage_id_end' in items:
+            q = q.where(TUser.manage_id <= items['manage_id_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TUser.id.in_(set_items['id']))
+        
+        if 'username' in set_items:
+            q = q.where(TUser.username.in_(set_items['username']))
+        
+        if 'email' in set_items:
+            q = q.where(TUser.email.in_(set_items['email']))
+        
+        if 'open_id' in set_items:
+            q = q.where(TUser.open_id.in_(set_items['open_id']))
+        
+        if 'union_id' in set_items:
+            q = q.where(TUser.union_id.in_(set_items['union_id']))
+        
+        if 'password' in set_items:
+            q = q.where(TUser.password.in_(set_items['password']))
+        
+        if 'nickname' in set_items:
+            q = q.where(TUser.nickname.in_(set_items['nickname']))
+        
+        if 'phone' in set_items:
+            q = q.where(TUser.phone.in_(set_items['phone']))
+        
+        if 'id_card' in set_items:
+            q = q.where(TUser.id_card.in_(set_items['id_card']))
+        
+        if 'level_id' in set_items:
+            q = q.where(TUser.level_id.in_(set_items['level_id']))
+        
+        if 'status' in set_items:
+            q = q.where(TUser.status.in_(set_items['status']))
+        
+        if 'register_time' in set_items:
+            q = q.where(TUser.register_time.in_(set_items['register_time']))
+        
+        if 'avatar' in set_items:
+            q = q.where(TUser.avatar.in_(set_items['avatar']))
+        
+        if 'invited_user_id' in set_items:
+            q = q.where(TUser.invited_user_id.in_(set_items['invited_user_id']))
+        
+        if 'coin' in set_items:
+            q = q.where(TUser.coin.in_(set_items['coin']))
+        
+        if 'gender' in set_items:
+            q = q.where(TUser.gender.in_(set_items['gender']))
+        
+        if 'last_active_time' in set_items:
+            q = q.where(TUser.last_active_time.in_(set_items['last_active_time']))
+        
+        if 'name' in set_items:
+            q = q.where(TUser.name.in_(set_items['name']))
+        
+        if 'is_agree' in set_items:
+            q = q.where(TUser.is_agree.in_(set_items['is_agree']))
+        
+        if 'parent_id' in set_items:
+            q = q.where(TUser.parent_id.in_(set_items['parent_id']))
+        
+        if 'parent_id_history' in set_items:
+            q = q.where(TUser.parent_id_history.in_(set_items['parent_id_history']))
+        
+        if 'level_one_time' in set_items:
+            q = q.where(TUser.level_one_time.in_(set_items['level_one_time']))
+        
+        if 'level_two_time' in set_items:
+            q = q.where(TUser.level_two_time.in_(set_items['level_two_time']))
+        
+        if 'level_three_time' in set_items:
+            q = q.where(TUser.level_three_time.in_(set_items['level_three_time']))
+        
+        if 'level_top_time' in set_items:
+            q = q.where(TUser.level_top_time.in_(set_items['level_top_time']))
+        
+        if 'manage_id' in set_items:
+            q = q.where(TUser.manage_id.in_(set_items['manage_id']))
+        
+
+        if 'username' in search_items:
+            q = q.where(TUser.username.like(search_items['username']))
+        
+        if 'email' in search_items:
+            q = q.where(TUser.email.like(search_items['email']))
+        
+        if 'open_id' in search_items:
+            q = q.where(TUser.open_id.like(search_items['open_id']))
+        
+        if 'union_id' in search_items:
+            q = q.where(TUser.union_id.like(search_items['union_id']))
+        
+        if 'password' in search_items:
+            q = q.where(TUser.password.like(search_items['password']))
+        
+        if 'nickname' in search_items:
+            q = q.where(TUser.nickname.like(search_items['nickname']))
+        
+        if 'phone' in search_items:
+            q = q.where(TUser.phone.like(search_items['phone']))
+        
+        if 'id_card' in search_items:
+            q = q.where(TUser.id_card.like(search_items['id_card']))
+        
+        if 'avatar' in search_items:
+            q = q.where(TUser.avatar.like(search_items['avatar']))
+        
+        if 'name' in search_items:
+            q = q.where(TUser.name.like(search_items['name']))
+        
+        if 'parent_id_history' in search_items:
+            q = q.where(TUser.parent_id_history.like(search_items['parent_id_history']))
+        
+    
+
+        orders = []
+        for col, val in order_items.items():
+            if val == 'asc':          
+                #orders.append(TUser.manage_id.asc())
+                orders.append(TUser.id.asc())
+            elif val == 'desc':
+                #orders.append(TUser.manage_id.desc())
+                orders.append(TUser.id.desc())
+            else:
+                raise HTTPException(400, 'order value must be asc or desc')
+        if len(order_items) > 0:
+            q = q.order_by(*orders)
+        
+        t_user_list = q.offset(page*page_size-page_size).limit(page_size).all()
+        return [SUser.parse_obj(t.__dict__) for t in t_user_list]
+
+
+def filter_count_user(items: dict, search_items: dict={}, set_items: dict={}) -> int:
+    with Dao() as db:
+        q = db.query(TUser)
+
+
+        if 'id' in items:
+            q = q.where(TUser.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TUser.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TUser.id <= items['id_end'])
+        
+        if 'username' in items:
+            q = q.where(TUser.username == items['username'])
+        if 'username_start' in items:
+            q = q.where(TUser.username >= items['username_start'])
+        if 'username_end' in items:
+            q = q.where(TUser.username <= items['username_end'])
+        
+        if 'email' in items:
+            q = q.where(TUser.email == items['email'])
+        if 'email_start' in items:
+            q = q.where(TUser.email >= items['email_start'])
+        if 'email_end' in items:
+            q = q.where(TUser.email <= items['email_end'])
+        
+        if 'open_id' in items:
+            q = q.where(TUser.open_id == items['open_id'])
+        if 'open_id_start' in items:
+            q = q.where(TUser.open_id >= items['open_id_start'])
+        if 'open_id_end' in items:
+            q = q.where(TUser.open_id <= items['open_id_end'])
+        
+        if 'union_id' in items:
+            q = q.where(TUser.union_id == items['union_id'])
+        if 'union_id_start' in items:
+            q = q.where(TUser.union_id >= items['union_id_start'])
+        if 'union_id_end' in items:
+            q = q.where(TUser.union_id <= items['union_id_end'])
+        
+        if 'password' in items:
+            q = q.where(TUser.password == items['password'])
+        if 'password_start' in items:
+            q = q.where(TUser.password >= items['password_start'])
+        if 'password_end' in items:
+            q = q.where(TUser.password <= items['password_end'])
+        
+        if 'nickname' in items:
+            q = q.where(TUser.nickname == items['nickname'])
+        if 'nickname_start' in items:
+            q = q.where(TUser.nickname >= items['nickname_start'])
+        if 'nickname_end' in items:
+            q = q.where(TUser.nickname <= items['nickname_end'])
+        
+        if 'phone' in items:
+            q = q.where(TUser.phone == items['phone'])
+        if 'phone_start' in items:
+            q = q.where(TUser.phone >= items['phone_start'])
+        if 'phone_end' in items:
+            q = q.where(TUser.phone <= items['phone_end'])
+        
+        if 'id_card' in items:
+            q = q.where(TUser.id_card == items['id_card'])
+        if 'id_card_start' in items:
+            q = q.where(TUser.id_card >= items['id_card_start'])
+        if 'id_card_end' in items:
+            q = q.where(TUser.id_card <= items['id_card_end'])
+        
+        if 'level_id' in items:
+            q = q.where(TUser.level_id == items['level_id'])
+        if 'level_id_start' in items:
+            q = q.where(TUser.level_id >= items['level_id_start'])
+        if 'level_id_end' in items:
+            q = q.where(TUser.level_id <= items['level_id_end'])
+        
+        if 'status' in items:
+            q = q.where(TUser.status == items['status'])
+        if 'status_start' in items:
+            q = q.where(TUser.status >= items['status_start'])
+        if 'status_end' in items:
+            q = q.where(TUser.status <= items['status_end'])
+        
+        if 'register_time' in items:
+            q = q.where(TUser.register_time == items['register_time'])
+        if 'register_time_start' in items:
+            q = q.where(TUser.register_time >= items['register_time_start'])
+        if 'register_time_end' in items:
+            q = q.where(TUser.register_time <= items['register_time_end'])
+        
+        if 'avatar' in items:
+            q = q.where(TUser.avatar == items['avatar'])
+        if 'avatar_start' in items:
+            q = q.where(TUser.avatar >= items['avatar_start'])
+        if 'avatar_end' in items:
+            q = q.where(TUser.avatar <= items['avatar_end'])
+        
+        if 'invited_user_id' in items:
+            q = q.where(TUser.invited_user_id == items['invited_user_id'])
+        if 'invited_user_id_start' in items:
+            q = q.where(TUser.invited_user_id >= items['invited_user_id_start'])
+        if 'invited_user_id_end' in items:
+            q = q.where(TUser.invited_user_id <= items['invited_user_id_end'])
+        
+        if 'coin' in items:
+            q = q.where(TUser.coin == items['coin'])
+        if 'coin_start' in items:
+            q = q.where(TUser.coin >= items['coin_start'])
+        if 'coin_end' in items:
+            q = q.where(TUser.coin <= items['coin_end'])
+        
+        if 'gender' in items:
+            q = q.where(TUser.gender == items['gender'])
+        if 'gender_start' in items:
+            q = q.where(TUser.gender >= items['gender_start'])
+        if 'gender_end' in items:
+            q = q.where(TUser.gender <= items['gender_end'])
+        
+        if 'last_active_time' in items:
+            q = q.where(TUser.last_active_time == items['last_active_time'])
+        if 'last_active_time_start' in items:
+            q = q.where(TUser.last_active_time >= items['last_active_time_start'])
+        if 'last_active_time_end' in items:
+            q = q.where(TUser.last_active_time <= items['last_active_time_end'])
+        
+        if 'name' in items:
+            q = q.where(TUser.name == items['name'])
+        if 'name_start' in items:
+            q = q.where(TUser.name >= items['name_start'])
+        if 'name_end' in items:
+            q = q.where(TUser.name <= items['name_end'])
+        
+        if 'is_agree' in items:
+            q = q.where(TUser.is_agree == items['is_agree'])
+        if 'is_agree_start' in items:
+            q = q.where(TUser.is_agree >= items['is_agree_start'])
+        if 'is_agree_end' in items:
+            q = q.where(TUser.is_agree <= items['is_agree_end'])
+        
+        if 'parent_id' in items:
+            q = q.where(TUser.parent_id == items['parent_id'])
+        if 'parent_id_start' in items:
+            q = q.where(TUser.parent_id >= items['parent_id_start'])
+        if 'parent_id_end' in items:
+            q = q.where(TUser.parent_id <= items['parent_id_end'])
+        
+        if 'parent_id_history' in items:
+            q = q.where(TUser.parent_id_history == items['parent_id_history'])
+        if 'parent_id_history_start' in items:
+            q = q.where(TUser.parent_id_history >= items['parent_id_history_start'])
+        if 'parent_id_history_end' in items:
+            q = q.where(TUser.parent_id_history <= items['parent_id_history_end'])
+        
+        if 'level_one_time' in items:
+            q = q.where(TUser.level_one_time == items['level_one_time'])
+        if 'level_one_time_start' in items:
+            q = q.where(TUser.level_one_time >= items['level_one_time_start'])
+        if 'level_one_time_end' in items:
+            q = q.where(TUser.level_one_time <= items['level_one_time_end'])
+        
+        if 'level_two_time' in items:
+            q = q.where(TUser.level_two_time == items['level_two_time'])
+        if 'level_two_time_start' in items:
+            q = q.where(TUser.level_two_time >= items['level_two_time_start'])
+        if 'level_two_time_end' in items:
+            q = q.where(TUser.level_two_time <= items['level_two_time_end'])
+        
+        if 'level_three_time' in items:
+            q = q.where(TUser.level_three_time == items['level_three_time'])
+        if 'level_three_time_start' in items:
+            q = q.where(TUser.level_three_time >= items['level_three_time_start'])
+        if 'level_three_time_end' in items:
+            q = q.where(TUser.level_three_time <= items['level_three_time_end'])
+        
+        if 'level_top_time' in items:
+            q = q.where(TUser.level_top_time == items['level_top_time'])
+        if 'level_top_time_start' in items:
+            q = q.where(TUser.level_top_time >= items['level_top_time_start'])
+        if 'level_top_time_end' in items:
+            q = q.where(TUser.level_top_time <= items['level_top_time_end'])
+        
+        if 'manage_id' in items:
+            q = q.where(TUser.manage_id == items['manage_id'])
+        if 'manage_id_start' in items:
+            q = q.where(TUser.manage_id >= items['manage_id_start'])
+        if 'manage_id_end' in items:
+            q = q.where(TUser.manage_id <= items['manage_id_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TUser.id.in_(set_items['id']))
+        
+        if 'username' in set_items:
+            q = q.where(TUser.username.in_(set_items['username']))
+        
+        if 'email' in set_items:
+            q = q.where(TUser.email.in_(set_items['email']))
+        
+        if 'open_id' in set_items:
+            q = q.where(TUser.open_id.in_(set_items['open_id']))
+        
+        if 'union_id' in set_items:
+            q = q.where(TUser.union_id.in_(set_items['union_id']))
+        
+        if 'password' in set_items:
+            q = q.where(TUser.password.in_(set_items['password']))
+        
+        if 'nickname' in set_items:
+            q = q.where(TUser.nickname.in_(set_items['nickname']))
+        
+        if 'phone' in set_items:
+            q = q.where(TUser.phone.in_(set_items['phone']))
+        
+        if 'id_card' in set_items:
+            q = q.where(TUser.id_card.in_(set_items['id_card']))
+        
+        if 'level_id' in set_items:
+            q = q.where(TUser.level_id.in_(set_items['level_id']))
+        
+        if 'status' in set_items:
+            q = q.where(TUser.status.in_(set_items['status']))
+        
+        if 'register_time' in set_items:
+            q = q.where(TUser.register_time.in_(set_items['register_time']))
+        
+        if 'avatar' in set_items:
+            q = q.where(TUser.avatar.in_(set_items['avatar']))
+        
+        if 'invited_user_id' in set_items:
+            q = q.where(TUser.invited_user_id.in_(set_items['invited_user_id']))
+        
+        if 'coin' in set_items:
+            q = q.where(TUser.coin.in_(set_items['coin']))
+        
+        if 'gender' in set_items:
+            q = q.where(TUser.gender.in_(set_items['gender']))
+        
+        if 'last_active_time' in set_items:
+            q = q.where(TUser.last_active_time.in_(set_items['last_active_time']))
+        
+        if 'name' in set_items:
+            q = q.where(TUser.name.in_(set_items['name']))
+        
+        if 'is_agree' in set_items:
+            q = q.where(TUser.is_agree.in_(set_items['is_agree']))
+        
+        if 'parent_id' in set_items:
+            q = q.where(TUser.parent_id.in_(set_items['parent_id']))
+        
+        if 'parent_id_history' in set_items:
+            q = q.where(TUser.parent_id_history.in_(set_items['parent_id_history']))
+        
+        if 'level_one_time' in set_items:
+            q = q.where(TUser.level_one_time.in_(set_items['level_one_time']))
+        
+        if 'level_two_time' in set_items:
+            q = q.where(TUser.level_two_time.in_(set_items['level_two_time']))
+        
+        if 'level_three_time' in set_items:
+            q = q.where(TUser.level_three_time.in_(set_items['level_three_time']))
+        
+        if 'level_top_time' in set_items:
+            q = q.where(TUser.level_top_time.in_(set_items['level_top_time']))
+        
+        if 'manage_id' in set_items:
+            q = q.where(TUser.manage_id.in_(set_items['manage_id']))
+        
+
+        if 'username' in search_items:
+            q = q.where(TUser.username.like(search_items['username']))
+        
+        if 'email' in search_items:
+            q = q.where(TUser.email.like(search_items['email']))
+        
+        if 'open_id' in search_items:
+            q = q.where(TUser.open_id.like(search_items['open_id']))
+        
+        if 'union_id' in search_items:
+            q = q.where(TUser.union_id.like(search_items['union_id']))
+        
+        if 'password' in search_items:
+            q = q.where(TUser.password.like(search_items['password']))
+        
+        if 'nickname' in search_items:
+            q = q.where(TUser.nickname.like(search_items['nickname']))
+        
+        if 'phone' in search_items:
+            q = q.where(TUser.phone.like(search_items['phone']))
+        
+        if 'id_card' in search_items:
+            q = q.where(TUser.id_card.like(search_items['id_card']))
+        
+        if 'avatar' in search_items:
+            q = q.where(TUser.avatar.like(search_items['avatar']))
+        
+        if 'name' in search_items:
+            q = q.where(TUser.name.like(search_items['name']))
+        
+        if 'parent_id_history' in search_items:
+            q = q.where(TUser.parent_id_history.like(search_items['parent_id_history']))
         
     
         c = q.count()
