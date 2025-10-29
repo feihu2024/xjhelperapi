@@ -25,11 +25,21 @@ app = FastAPI()
 origins = [
     "*"
 ]
+origins_b = [
+"http://kemaiyuncang4wbhfr.yxiaozhu.com",
+"https://yxiaozhu.com",
+"http://kemaiyuncang4wbhfrapi.yxiaozhu.com",
+"http://auadmin.mlcfjihua.cn",
+"http://myshop888.yxiaozhu.com",
+"http://localhost",
+"http://localhost:3000",
+"http://localhost:8080"
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=False,
+    allow_origins=origins_b,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -169,5 +179,5 @@ async def value_error_handler(request, exc):
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8006)
 
