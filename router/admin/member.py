@@ -1,15 +1,8 @@
 import datetime
 from dao import d_db, d_user
 from fastapi import APIRouter, Depends, Header, Request
-from model.mall import m_supplier
-from model import m_schema, schema
 from model.m_schema import *
-from router.mall import user
 from typing import Optional, List
-from router import r_schema
-from service import wx_service
-from model.res import auth
-from service.auth_service import token_encode
 from router.admin.user import verify_token
 from common import global_define
 from fastapi import HTTPException
