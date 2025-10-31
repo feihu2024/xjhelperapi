@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends
 from service.auth import s_login
 from router import admin, mall
+from router.admin import manage
 from router import file, r_schema, r_query, r_update, r_create, r_wx
 from router.mall import user
 
@@ -15,7 +16,7 @@ def include_routers(app: FastAPI):
     app.include_router(mall.user.router, prefix='/mall/user', tags=['/mall/user'])
 
     # mall admin
-    #app.include_router(admin.manage.router, prefix='/mall/admin', tags=['/mall/admin'])
+    app.include_router(admin.manage.router, prefix='/mall/admin', tags=['/mall/admin'])
 
     #
     # app.include_router(supplier.user.router, prefix='/supplier/user', tags=['/supplier/user'])
