@@ -20,11 +20,13 @@ from common import global_function, global_define
 import re
 
 
+# app = FastAPI(docs_url=None)
 app = FastAPI()
 
 origins = [
     "*"
 ]
+
 origins_b = [
 "http://xjhelperapi.qting518.com",
 "http://xjhelper.qting518.com:8083",
@@ -60,8 +62,17 @@ async def value_error_handler(request, exc):
     error_detail = str(exc)  # 将detail转换为字符串形式
     return {"error": error_detail}
 
-#@app.middleware("http")
-#async def validate_users(request: Request, call_next):
+#
+# @app.middleware("http")
+# async def validate_users(request: Request, call_next):
+#     response: Response = await call_next(request)
+#     response.headers["access-control-allow-headers"] = "content-type,jinnengyuansession"
+#     response.headers["Content-Type"] = "text/html; charset=utf-8"
+#     response.headers["access-control-allow-origin"] = "*"
+#     response.headers["access-control-allow-methods"] = "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT"
+#     response.headers["Connection"] = "keep-alive"
+#     return response
+
 #    start_time = time.time()
 #    url_path = request.url.path
 #    get_search = re.search(r'\'', str(request.query_params), flags=0)
@@ -71,7 +82,7 @@ async def value_error_handler(request, exc):
 #        return response
 #
 #    if request.headers.get('kemaikemaisession') or url_path.lower().startswith('/mall/admin') or url_path.lower().startswith('/admin'):
-#        if url_path.lower().startswith('/mall/admin/login') or url_path.lower().startswith('/mall/admin/login_out'):
+#        if url_path.lower().startswith('/mall/admin/login') or url_path.lower().startswith('/mall/admin/login_out') or url_path.lower().startswith('/mall/admin/shop_login'):
 #            response: Response = await call_next(request)
 #            return response
 #        else:
@@ -111,7 +122,7 @@ async def value_error_handler(request, exc):
 #        response = JSONResponse(content={"status": 404, "message": "Critical error!"})
 #        response.headers["Content-Type"] = "text/plain; charset=utf-8"
 #        return response
-#    elif url_path.startswith('/assets/file') or url_path.startswith('/assets/image') or url_path.startswith('/wx/notify'):
+#    elif url_path.startswith('/assets/file') or url_path.startswith('/assets/image') or url_path.startswith('/wx/notify') or url_path.startswith('/docs'):
 #        response: Response = await call_next(request)
 #        return response
 #    else:
@@ -124,6 +135,8 @@ async def value_error_handler(request, exc):
 #
 #    return response
 #
+#
+
     # 问题：await request.json() 之后的  await call_next(request)  无法执行
     # try:
     #     json_obj = await request.json()
