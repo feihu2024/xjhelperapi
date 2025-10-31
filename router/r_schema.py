@@ -8,6 +8,805 @@ import re
 router = APIRouter()
 
     
+@router.post(f'/admin/create', response_model=SAdmin)
+async def create_admin(item: CreateAdmin) -> SAdmin:
+    dict_item = dict(item)
+    for k,v in dict_item.items():
+        if v is not None:
+            v = str(v)
+            v = v.replace(" ", "")
+            get_search = re.search(r"'", v, flags=0)
+            get_search2 = re.search(r'%27', v, flags=0)
+            get_search3 = re.search(r'unionselect', v, flags=0)
+            if get_search or get_search2 or get_search3:
+               raise HTTPException(status_code=404, detail='bad way~~~~~~')
+
+    return d_db.insert_admin(item)
+        
+    
+@router.post(f'/admin/update', response_model=str)
+async def update_admin(item: SAdmin) -> str:
+    d_db.update_admin(item)
+    return "success"
+
+    
+@router.get(f'/admin/get', response_model=SAdmin)
+async def get_admin(admin_id: int) -> SAdmin:
+    return d_db.get_admin(admin_id)
+
+
+@router.get(f'/admin/filter', response_model=FilterResAdmin)
+async def filter_admin(
+        id: Optional[str] = None, 
+        username: Optional[str] = None, 
+        phone: Optional[str] = None, 
+        email: Optional[str] = None, 
+        level_id: Optional[str] = None, 
+        password: Optional[str] = None, 
+        id_card: Optional[str] = None, 
+        gender: Optional[str] = None, 
+        register_time: Optional[str] = None, 
+        last_active_time: Optional[str] = None, 
+        status: Optional[str] = None, 
+        business_id: Optional[str] = None, 
+        admin_id: Optional[str] = None, 
+        user_pic: Optional[str] = None, 
+        user_info: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_username: Optional[str] = None, 
+        l_phone: Optional[str] = None, 
+        l_email: Optional[str] = None, 
+        l_level_id: Optional[str] = None, 
+        l_password: Optional[str] = None, 
+        l_id_card: Optional[str] = None, 
+        l_gender: Optional[str] = None, 
+        l_register_time: Optional[str] = None, 
+        l_last_active_time: Optional[str] = None, 
+        l_status: Optional[str] = None, 
+        l_business_id: Optional[str] = None, 
+        l_admin_id: Optional[str] = None, 
+        l_user_pic: Optional[str] = None, 
+        l_user_info: Optional[str] = None, 
+        s_username: Optional[str] = None, 
+        s_phone: Optional[str] = None, 
+        s_email: Optional[str] = None, 
+        s_password: Optional[str] = None, 
+        s_id_card: Optional[str] = None, 
+        s_gender: Optional[str] = None, 
+        s_status: Optional[str] = None, 
+        s_user_pic: Optional[str] = None, 
+        s_user_info: Optional[str] = None,
+        order_by: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResAdmin:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if username is not None:
+        values = username.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['username'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['username_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['username_end'] = val
+        
+    if phone is not None:
+        values = phone.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['phone'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['phone_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['phone_end'] = val
+        
+    if email is not None:
+        values = email.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['email'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['email_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['email_end'] = val
+        
+    if level_id is not None:
+        values = level_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['level_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['level_id_end'] = int(val)
+        
+    if password is not None:
+        values = password.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['password'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['password_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['password_end'] = val
+        
+    if id_card is not None:
+        values = id_card.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id_card'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['id_card_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['id_card_end'] = val
+        
+    if gender is not None:
+        values = gender.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['gender'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['gender_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['gender_end'] = val
+        
+    if register_time is not None:
+        values = register_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['register_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['register_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['register_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if last_active_time is not None:
+        values = last_active_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['last_active_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['last_active_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['last_active_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if status is not None:
+        values = status.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['status'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['status_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['status_end'] = val
+        
+    if business_id is not None:
+        values = business_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['business_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['business_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['business_id_end'] = int(val)
+        
+    if admin_id is not None:
+        values = admin_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['admin_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['admin_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['admin_id_end'] = int(val)
+        
+    if user_pic is not None:
+        values = user_pic.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_pic'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['user_pic_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['user_pic_end'] = val
+        
+    if user_info is not None:
+        values = user_info.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_info'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['user_info_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['user_info_end'] = val
+        
+
+    if s_username is not None:
+        search_items['username'] = '%' + s_username + '%'
+        
+    if s_phone is not None:
+        search_items['phone'] = '%' + s_phone + '%'
+        
+    if s_email is not None:
+        search_items['email'] = '%' + s_email + '%'
+        
+    if s_password is not None:
+        search_items['password'] = '%' + s_password + '%'
+        
+    if s_id_card is not None:
+        search_items['id_card'] = '%' + s_id_card + '%'
+        
+    if s_gender is not None:
+        search_items['gender'] = '%' + s_gender + '%'
+        
+    if s_status is not None:
+        search_items['status'] = '%' + s_status + '%'
+        
+    if s_user_pic is not None:
+        search_items['user_pic'] = '%' + s_user_pic + '%'
+        
+    if s_user_info is not None:
+        search_items['user_info'] = '%' + s_user_info + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_username is not None:
+        values = l_username.split(',')
+        values = [val for val in values]
+        set_items['username'] = values
+        
+    if l_phone is not None:
+        values = l_phone.split(',')
+        values = [val for val in values]
+        set_items['phone'] = values
+        
+    if l_email is not None:
+        values = l_email.split(',')
+        values = [val for val in values]
+        set_items['email'] = values
+        
+    if l_level_id is not None:
+        values = l_level_id.split(',')
+        values = [int(val) for val in values]
+        set_items['level_id'] = values
+        
+    if l_password is not None:
+        values = l_password.split(',')
+        values = [val for val in values]
+        set_items['password'] = values
+        
+    if l_id_card is not None:
+        values = l_id_card.split(',')
+        values = [val for val in values]
+        set_items['id_card'] = values
+        
+    if l_gender is not None:
+        values = l_gender.split(',')
+        values = [val for val in values]
+        set_items['gender'] = values
+        
+    if l_register_time is not None:
+        values = l_register_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['register_time'] = values
+        
+    if l_last_active_time is not None:
+        values = l_last_active_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['last_active_time'] = values
+        
+    if l_status is not None:
+        values = l_status.split(',')
+        values = [val for val in values]
+        set_items['status'] = values
+        
+    if l_business_id is not None:
+        values = l_business_id.split(',')
+        values = [int(val) for val in values]
+        set_items['business_id'] = values
+        
+    if l_admin_id is not None:
+        values = l_admin_id.split(',')
+        values = [int(val) for val in values]
+        set_items['admin_id'] = values
+        
+    if l_user_pic is not None:
+        values = l_user_pic.split(',')
+        values = [val for val in values]
+        set_items['user_pic'] = values
+        
+    if l_user_info is not None:
+        values = l_user_info.split(',')
+        values = [val for val in values]
+        set_items['user_info'] = values
+            
+    
+    
+    order_items = dict()
+    if order_by is not None:
+        orders = order_by.split(',')
+        for order in orders:
+            if order.startswith('-'):
+                order_items[order[1:]] = 'desc'
+            else:
+                order_items[order] = 'asc'
+    data = d_db.filter_admin(items, search_items, set_items, order_items, page, page_size)
+    c = d_db.filter_count_admin(items, search_items, set_items)
+    
+    return FilterResAdmin(data=data, total=c)
+
+
+@router.get(f'/admin/fast_filter', response_model=FilterResAdmin)
+async def fast_filter_admin(
+        id: Optional[str] = None, 
+        username: Optional[str] = None, 
+        phone: Optional[str] = None, 
+        email: Optional[str] = None, 
+        level_id: Optional[str] = None, 
+        password: Optional[str] = None, 
+        id_card: Optional[str] = None, 
+        gender: Optional[str] = None, 
+        register_time: Optional[str] = None, 
+        last_active_time: Optional[str] = None, 
+        status: Optional[str] = None, 
+        business_id: Optional[str] = None, 
+        admin_id: Optional[str] = None, 
+        user_pic: Optional[str] = None, 
+        user_info: Optional[str] = None, 
+        l_id: Optional[str] = None, 
+        l_username: Optional[str] = None, 
+        l_phone: Optional[str] = None, 
+        l_email: Optional[str] = None, 
+        l_level_id: Optional[str] = None, 
+        l_password: Optional[str] = None, 
+        l_id_card: Optional[str] = None, 
+        l_gender: Optional[str] = None, 
+        l_register_time: Optional[str] = None, 
+        l_last_active_time: Optional[str] = None, 
+        l_status: Optional[str] = None, 
+        l_business_id: Optional[str] = None, 
+        l_admin_id: Optional[str] = None, 
+        l_user_pic: Optional[str] = None, 
+        l_user_info: Optional[str] = None, 
+        s_username: Optional[str] = None, 
+        s_phone: Optional[str] = None, 
+        s_email: Optional[str] = None, 
+        s_password: Optional[str] = None, 
+        s_id_card: Optional[str] = None, 
+        s_gender: Optional[str] = None, 
+        s_status: Optional[str] = None, 
+        s_user_pic: Optional[str] = None, 
+        s_user_info: Optional[str] = None,
+        page: int = 1, 
+        page_size: int = 20) -> FilterResAdmin:
+
+    """
+    1. 按照字段查询`?field1=value1&field2=value2`
+    2. 按照范围查询，大于某个值`?field=value,`, 表示filed大于value
+    3. 按照范围查询，小于某个值`?field=,value`， 表示field小于value
+    4. 按照范围查询，范围值`?field=value1,value2`，表示搜索field大于等于value1，小于等于value2
+    5. page是页数，第一页为1
+    6. page_size为每一页大小， 默认20
+    7. 如果是日期，请使用时间戳，十位的时间戳，单位：秒
+    8. 所有字符串字段均可搜索，需要在字段前加个前缀`s_`,例如搜索`username`包含`zhang`， 则可以这样`s_username=zhang`写,这里只是一个假设
+    9. 字段的多选择（in关系），需要在字段前加前缀`l_`,并且以逗号`,`隔开,例如要找出`id=2`或者`id=3`的样本，可以这样写`?l_id=2,3`
+    """
+    
+
+    items = dict()
+    search_items = dict()
+    set_items = dict()
+
+    if id is not None:
+        values = id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['id_end'] = int(val)
+        
+    if username is not None:
+        values = username.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['username'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['username_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['username_end'] = val
+        
+    if phone is not None:
+        values = phone.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['phone'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['phone_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['phone_end'] = val
+        
+    if email is not None:
+        values = email.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['email'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['email_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['email_end'] = val
+        
+    if level_id is not None:
+        values = level_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['level_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['level_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['level_id_end'] = int(val)
+        
+    if password is not None:
+        values = password.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['password'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['password_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['password_end'] = val
+        
+    if id_card is not None:
+        values = id_card.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['id_card'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['id_card_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['id_card_end'] = val
+        
+    if gender is not None:
+        values = gender.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['gender'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['gender_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['gender_end'] = val
+        
+    if register_time is not None:
+        values = register_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['register_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['register_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['register_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if last_active_time is not None:
+        values = last_active_time.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['last_active_time'] = datetime.fromtimestamp(int(val))
+        else:
+            val = values[0]
+            if val != '':
+                items['last_active_time_start'] = datetime.fromtimestamp(int(val))
+            
+            val = values[1]
+            if val != '':
+                items['last_active_time_end'] = datetime.fromtimestamp(int(val))
+        
+    if status is not None:
+        values = status.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['status'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['status_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['status_end'] = val
+        
+    if business_id is not None:
+        values = business_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['business_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['business_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['business_id_end'] = int(val)
+        
+    if admin_id is not None:
+        values = admin_id.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['admin_id'] = int(val)
+        else:
+            val = values[0]
+            if val != '':
+                items['admin_id_start'] = int(val)
+            
+            val = values[1]
+            if val != '':
+                items['admin_id_end'] = int(val)
+        
+    if user_pic is not None:
+        values = user_pic.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_pic'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['user_pic_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['user_pic_end'] = val
+        
+    if user_info is not None:
+        values = user_info.split(',')
+        if len(values) == 1:
+            val = values[0]
+            items['user_info'] = val
+        else:
+            val = values[0]
+            if val != '':
+                items['user_info_start'] = val
+            
+            val = values[1]
+            if val != '':
+                items['user_info_end'] = val
+        
+
+    if s_username is not None:
+        search_items['username'] = '%' + s_username + '%'
+        
+    if s_phone is not None:
+        search_items['phone'] = '%' + s_phone + '%'
+        
+    if s_email is not None:
+        search_items['email'] = '%' + s_email + '%'
+        
+    if s_password is not None:
+        search_items['password'] = '%' + s_password + '%'
+        
+    if s_id_card is not None:
+        search_items['id_card'] = '%' + s_id_card + '%'
+        
+    if s_gender is not None:
+        search_items['gender'] = '%' + s_gender + '%'
+        
+    if s_status is not None:
+        search_items['status'] = '%' + s_status + '%'
+        
+    if s_user_pic is not None:
+        search_items['user_pic'] = '%' + s_user_pic + '%'
+        
+    if s_user_info is not None:
+        search_items['user_info'] = '%' + s_user_info + '%'
+        
+
+    if l_id is not None:
+        values = l_id.split(',')
+        values = [int(val) for val in values]
+        set_items['id'] = values
+        
+    if l_username is not None:
+        values = l_username.split(',')
+        values = [val for val in values]
+        set_items['username'] = values
+        
+    if l_phone is not None:
+        values = l_phone.split(',')
+        values = [val for val in values]
+        set_items['phone'] = values
+        
+    if l_email is not None:
+        values = l_email.split(',')
+        values = [val for val in values]
+        set_items['email'] = values
+        
+    if l_level_id is not None:
+        values = l_level_id.split(',')
+        values = [int(val) for val in values]
+        set_items['level_id'] = values
+        
+    if l_password is not None:
+        values = l_password.split(',')
+        values = [val for val in values]
+        set_items['password'] = values
+        
+    if l_id_card is not None:
+        values = l_id_card.split(',')
+        values = [val for val in values]
+        set_items['id_card'] = values
+        
+    if l_gender is not None:
+        values = l_gender.split(',')
+        values = [val for val in values]
+        set_items['gender'] = values
+        
+    if l_register_time is not None:
+        values = l_register_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['register_time'] = values
+        
+    if l_last_active_time is not None:
+        values = l_last_active_time.split(',')
+        values = [datetime.fromtimestamp(int(val)) for val in values]
+        set_items['last_active_time'] = values
+        
+    if l_status is not None:
+        values = l_status.split(',')
+        values = [val for val in values]
+        set_items['status'] = values
+        
+    if l_business_id is not None:
+        values = l_business_id.split(',')
+        values = [int(val) for val in values]
+        set_items['business_id'] = values
+        
+    if l_admin_id is not None:
+        values = l_admin_id.split(',')
+        values = [int(val) for val in values]
+        set_items['admin_id'] = values
+        
+    if l_user_pic is not None:
+        values = l_user_pic.split(',')
+        values = [val for val in values]
+        set_items['user_pic'] = values
+        
+    if l_user_info is not None:
+        values = l_user_info.split(',')
+        values = [val for val in values]
+        set_items['user_info'] = values
+            
+    
+    data = d_db.filter_admin(items, search_items, set_items, page, page_size)
+    return FilterResAdmin(data=data, total=-1)
+
+    
 @router.post(f'/balance/create', response_model=SBalance)
 async def create_balance(item: CreateBalance) -> SBalance:
     dict_item = dict(item)

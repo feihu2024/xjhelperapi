@@ -7,6 +7,27 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
+class TAdmin(Base):
+    __tablename__ = 't_admin'
+    __table_args__ = {'comment': '管理员的表'}
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String(45))
+    phone = Column(String(45))
+    email = Column(String(45))
+    level_id = Column(Integer)
+    password = Column(String(100))
+    id_card = Column(String(45))
+    gender = Column(String(20))
+    register_time = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"), comment='创建时间')
+    last_active_time = Column(TIMESTAMP)
+    status = Column(String(20))
+    business_id = Column(Integer, server_default=text("'0'"), comment='商家ID_busiess_content')
+    admin_id = Column(Integer, server_default=text("'0'"), comment='所属商家管理id')
+    user_pic = Column(String(512), comment='头像url')
+    user_info = Column(Text, comment='用户备注')
+
+
 class TBalance(Base):
     __tablename__ = 't_balance'
     __table_args__ = {'comment': '用户账户余额表，用户的余额历史 记录，不可修改，只能增加'}

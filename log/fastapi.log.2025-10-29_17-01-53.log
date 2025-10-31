@@ -1,0 +1,29 @@
+INFO: 2025-10-29 17:00:30,379 server.py Started server process [12377]
+INFO: 2025-10-29 17:00:30,380 on.py Waiting for application startup.
+INFO: 2025-10-29 17:00:30,380 main.py Test log
+INFO: 2025-10-29 17:00:30,380 on.py Application startup complete.
+INFO: 2025-10-29 17:00:30,381 server.py Uvicorn running on http://0.0.0.0:8006 (Press CTRL+C to quit)
+INFO: 2025-10-29 17:01:49,342 server.py Shutting down
+INFO: 2025-10-29 17:01:49,442 on.py Waiting for application shutdown.
+INFO: 2025-10-29 17:01:49,442 on.py Application shutdown complete.
+INFO: 2025-10-29 17:01:49,442 server.py Finished server process [12377]
+INFO: 2025-10-29 17:01:50,678 server.py Started server process [12681]
+INFO: 2025-10-29 17:01:50,678 on.py Waiting for application startup.
+INFO: 2025-10-29 17:01:50,678 main.py Test log
+INFO: 2025-10-29 17:01:50,679 on.py Application startup complete.
+INFO: 2025-10-29 17:01:53,083 server.py Shutting down
+INFO: 2025-10-29 17:01:53,183 server.py Finished server process [12681]
+ERROR: 2025-10-29 17:01:53,230 on.py Traceback (most recent call last):
+  File "/root/miniconda3/envs/python39/lib/python3.9/site-packages/starlette/routing.py", line 624, in lifespan
+    await receive()
+  File "/root/miniconda3/envs/python39/lib/python3.9/site-packages/uvicorn/lifespan/on.py", line 135, in receive
+    return await self.receive_queue.get()
+  File "/root/miniconda3/envs/python39/lib/python3.9/asyncio/queues.py", line 166, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO: 2025-10-29 17:04:45,390 server.py Started server process [13358]
+INFO: 2025-10-29 17:04:45,390 on.py Waiting for application startup.
+INFO: 2025-10-29 17:04:45,391 main.py Test log
+INFO: 2025-10-29 17:04:45,391 on.py Application startup complete.
+INFO: 2025-10-29 17:04:45,391 server.py Uvicorn running on http://0.0.0.0:8006 (Press CTRL+C to quit)

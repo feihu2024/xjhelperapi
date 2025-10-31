@@ -4,6 +4,38 @@ from datetime import datetime
 from fastapi.exceptions import HTTPException
 
 
+class CreateAdmin(BaseModel):
+    username: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    level_id: Optional[int]
+    password: Optional[str]
+    id_card: Optional[str]
+    gender: Optional[str]
+    register_time: Optional[datetime] = Field(title='创建时间')
+    last_active_time: Optional[datetime]
+    status: Optional[str]
+    business_id: Optional[int] = Field(title='商家ID_busiess_content')
+    admin_id: Optional[int] = Field(title='所属商家管理id')
+    user_pic: Optional[str] = Field(title='头像url')
+    user_info: Optional[str] = Field(title='用户备注')
+
+        
+class SAdmin(CreateAdmin):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class Admin(CreateAdmin):
+    id: Optional[int] = None
+    class Config:
+        orm_mode = True
+
+class FilterResAdmin(BaseModel):
+    data: List[SAdmin]
+    total: int
+    
 class CreateBalance(BaseModel):
     user_id: Optional[int] = Field(title='外键')
     change: Optional[int] = Field(title='变动金额')

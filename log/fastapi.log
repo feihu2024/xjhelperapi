@@ -1,2 +1,19 @@
-INFO: 2023-11-22 15:40:33,556 order.py start to order
-INFO: 2023-11-22 15:40:33,601 order.py start to wxpay
+INFO: 2025-10-31 16:02:28,707 server.py Shutting down
+INFO: 2025-10-31 16:02:28,807 on.py Waiting for application shutdown.
+INFO: 2025-10-31 16:02:28,807 on.py Application shutdown complete.
+INFO: 2025-10-31 16:02:28,807 server.py Finished server process [13358]
+INFO: 2025-10-31 16:02:30,072 server.py Started server process [6707]
+INFO: 2025-10-31 16:02:30,072 on.py Waiting for application startup.
+INFO: 2025-10-31 16:02:30,072 main.py Test log
+INFO: 2025-10-31 16:02:30,072 on.py Application startup complete.
+INFO: 2025-10-31 16:02:32,278 server.py Shutting down
+INFO: 2025-10-31 16:02:32,379 server.py Finished server process [6707]
+ERROR: 2025-10-31 16:02:32,380 on.py Traceback (most recent call last):
+  File "/root/miniconda3/envs/python39/lib/python3.9/site-packages/starlette/routing.py", line 624, in lifespan
+    await receive()
+  File "/root/miniconda3/envs/python39/lib/python3.9/site-packages/uvicorn/lifespan/on.py", line 135, in receive
+    return await self.receive_queue.get()
+  File "/root/miniconda3/envs/python39/lib/python3.9/asyncio/queues.py", line 166, in get
+    await getter
+asyncio.exceptions.CancelledError
+

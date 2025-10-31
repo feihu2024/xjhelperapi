@@ -9,6 +9,452 @@ def model2dict(item) -> dict:
     return {key: val for key, val in item.dict().items() if val is not None}
 
     
+def insert_admin(item: CreateAdmin, db: Optional[SessionLocal] = None) -> SAdmin:
+    data = model2dict(item)
+    t = TAdmin(**data)
+    if db:
+        db.add(t)
+        db.flush()
+        db.refresh(t)
+        return SAddress.parse_obj(t.__dict__)
+    with Dao() as db:
+        db.add(t)
+        db.commit()
+        db.refresh(t)
+    return SAdmin.parse_obj(t.__dict__)
+
+    
+def delete_admin(admin_id: int, db: Optional[SessionLocal] = None):
+    if db:
+        db.query(TAdmin).where(TAdmin.id == admin_id).delete()
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TAdmin).where(TAdmin.id == admin_id).delete()
+        db.commit()
+
+    
+def update_admin(item: SAdmin, db: Optional[SessionLocal] = None):
+    data = model2dict(item)
+    data.pop('id')
+    if db:
+        db.query(TAdmin).where(TAdmin.id == item.id).update(data)
+        db.flush()
+        return
+    
+    with Dao() as db:
+        db.query(TAdmin).where(TAdmin.id == item.id).update(data)
+        db.commit()
+
+    
+def get_admin(admin_id: int) -> Optional[SAdmin]:
+    with Dao() as db:
+        t = db.query(TAdmin).where(TAdmin.id == admin_id).first()
+        if t:
+            return SAdmin.parse_obj(t.__dict__)
+        else:
+            return None
+
+
+def filter_admin(
+    items: dict, 
+    search_items: dict={}, 
+    set_items: dict={}, 
+    order_items: dict={},
+    page: int = 1,
+    page_size: int = 20) -> List[SAdmin]:
+    with Dao() as db:
+        q = db.query(TAdmin)
+
+
+        if 'id' in items:
+            q = q.where(TAdmin.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TAdmin.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TAdmin.id <= items['id_end'])
+        
+        if 'username' in items:
+            q = q.where(TAdmin.username == items['username'])
+        if 'username_start' in items:
+            q = q.where(TAdmin.username >= items['username_start'])
+        if 'username_end' in items:
+            q = q.where(TAdmin.username <= items['username_end'])
+        
+        if 'phone' in items:
+            q = q.where(TAdmin.phone == items['phone'])
+        if 'phone_start' in items:
+            q = q.where(TAdmin.phone >= items['phone_start'])
+        if 'phone_end' in items:
+            q = q.where(TAdmin.phone <= items['phone_end'])
+        
+        if 'email' in items:
+            q = q.where(TAdmin.email == items['email'])
+        if 'email_start' in items:
+            q = q.where(TAdmin.email >= items['email_start'])
+        if 'email_end' in items:
+            q = q.where(TAdmin.email <= items['email_end'])
+        
+        if 'level_id' in items:
+            q = q.where(TAdmin.level_id == items['level_id'])
+        if 'level_id_start' in items:
+            q = q.where(TAdmin.level_id >= items['level_id_start'])
+        if 'level_id_end' in items:
+            q = q.where(TAdmin.level_id <= items['level_id_end'])
+        
+        if 'password' in items:
+            q = q.where(TAdmin.password == items['password'])
+        if 'password_start' in items:
+            q = q.where(TAdmin.password >= items['password_start'])
+        if 'password_end' in items:
+            q = q.where(TAdmin.password <= items['password_end'])
+        
+        if 'id_card' in items:
+            q = q.where(TAdmin.id_card == items['id_card'])
+        if 'id_card_start' in items:
+            q = q.where(TAdmin.id_card >= items['id_card_start'])
+        if 'id_card_end' in items:
+            q = q.where(TAdmin.id_card <= items['id_card_end'])
+        
+        if 'gender' in items:
+            q = q.where(TAdmin.gender == items['gender'])
+        if 'gender_start' in items:
+            q = q.where(TAdmin.gender >= items['gender_start'])
+        if 'gender_end' in items:
+            q = q.where(TAdmin.gender <= items['gender_end'])
+        
+        if 'register_time' in items:
+            q = q.where(TAdmin.register_time == items['register_time'])
+        if 'register_time_start' in items:
+            q = q.where(TAdmin.register_time >= items['register_time_start'])
+        if 'register_time_end' in items:
+            q = q.where(TAdmin.register_time <= items['register_time_end'])
+        
+        if 'last_active_time' in items:
+            q = q.where(TAdmin.last_active_time == items['last_active_time'])
+        if 'last_active_time_start' in items:
+            q = q.where(TAdmin.last_active_time >= items['last_active_time_start'])
+        if 'last_active_time_end' in items:
+            q = q.where(TAdmin.last_active_time <= items['last_active_time_end'])
+        
+        if 'status' in items:
+            q = q.where(TAdmin.status == items['status'])
+        if 'status_start' in items:
+            q = q.where(TAdmin.status >= items['status_start'])
+        if 'status_end' in items:
+            q = q.where(TAdmin.status <= items['status_end'])
+        
+        if 'business_id' in items:
+            q = q.where(TAdmin.business_id == items['business_id'])
+        if 'business_id_start' in items:
+            q = q.where(TAdmin.business_id >= items['business_id_start'])
+        if 'business_id_end' in items:
+            q = q.where(TAdmin.business_id <= items['business_id_end'])
+        
+        if 'admin_id' in items:
+            q = q.where(TAdmin.admin_id == items['admin_id'])
+        if 'admin_id_start' in items:
+            q = q.where(TAdmin.admin_id >= items['admin_id_start'])
+        if 'admin_id_end' in items:
+            q = q.where(TAdmin.admin_id <= items['admin_id_end'])
+        
+        if 'user_pic' in items:
+            q = q.where(TAdmin.user_pic == items['user_pic'])
+        if 'user_pic_start' in items:
+            q = q.where(TAdmin.user_pic >= items['user_pic_start'])
+        if 'user_pic_end' in items:
+            q = q.where(TAdmin.user_pic <= items['user_pic_end'])
+        
+        if 'user_info' in items:
+            q = q.where(TAdmin.user_info == items['user_info'])
+        if 'user_info_start' in items:
+            q = q.where(TAdmin.user_info >= items['user_info_start'])
+        if 'user_info_end' in items:
+            q = q.where(TAdmin.user_info <= items['user_info_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TAdmin.id.in_(set_items['id']))
+        
+        if 'username' in set_items:
+            q = q.where(TAdmin.username.in_(set_items['username']))
+        
+        if 'phone' in set_items:
+            q = q.where(TAdmin.phone.in_(set_items['phone']))
+        
+        if 'email' in set_items:
+            q = q.where(TAdmin.email.in_(set_items['email']))
+        
+        if 'level_id' in set_items:
+            q = q.where(TAdmin.level_id.in_(set_items['level_id']))
+        
+        if 'password' in set_items:
+            q = q.where(TAdmin.password.in_(set_items['password']))
+        
+        if 'id_card' in set_items:
+            q = q.where(TAdmin.id_card.in_(set_items['id_card']))
+        
+        if 'gender' in set_items:
+            q = q.where(TAdmin.gender.in_(set_items['gender']))
+        
+        if 'register_time' in set_items:
+            q = q.where(TAdmin.register_time.in_(set_items['register_time']))
+        
+        if 'last_active_time' in set_items:
+            q = q.where(TAdmin.last_active_time.in_(set_items['last_active_time']))
+        
+        if 'status' in set_items:
+            q = q.where(TAdmin.status.in_(set_items['status']))
+        
+        if 'business_id' in set_items:
+            q = q.where(TAdmin.business_id.in_(set_items['business_id']))
+        
+        if 'admin_id' in set_items:
+            q = q.where(TAdmin.admin_id.in_(set_items['admin_id']))
+        
+        if 'user_pic' in set_items:
+            q = q.where(TAdmin.user_pic.in_(set_items['user_pic']))
+        
+        if 'user_info' in set_items:
+            q = q.where(TAdmin.user_info.in_(set_items['user_info']))
+        
+
+        if 'username' in search_items:
+            q = q.where(TAdmin.username.like(search_items['username']))
+        
+        if 'phone' in search_items:
+            q = q.where(TAdmin.phone.like(search_items['phone']))
+        
+        if 'email' in search_items:
+            q = q.where(TAdmin.email.like(search_items['email']))
+        
+        if 'password' in search_items:
+            q = q.where(TAdmin.password.like(search_items['password']))
+        
+        if 'id_card' in search_items:
+            q = q.where(TAdmin.id_card.like(search_items['id_card']))
+        
+        if 'gender' in search_items:
+            q = q.where(TAdmin.gender.like(search_items['gender']))
+        
+        if 'status' in search_items:
+            q = q.where(TAdmin.status.like(search_items['status']))
+        
+        if 'user_pic' in search_items:
+            q = q.where(TAdmin.user_pic.like(search_items['user_pic']))
+        
+        if 'user_info' in search_items:
+            q = q.where(TAdmin.user_info.like(search_items['user_info']))
+        
+    
+
+        orders = []
+        for col, val in order_items.items():
+            if val == 'asc':          
+                #orders.append(TAdmin.user_info.asc())
+                orders.append(TAdmin.id.asc())
+            elif val == 'desc':
+                #orders.append(TAdmin.user_info.desc())
+                orders.append(TAdmin.id.desc())
+            else:
+                raise HTTPException(400, 'order value must be asc or desc')
+        if len(order_items) > 0:
+            q = q.order_by(*orders)
+        
+        t_admin_list = q.offset(page*page_size-page_size).limit(page_size).all()
+        return [SAdmin.parse_obj(t.__dict__) for t in t_admin_list]
+
+
+def filter_count_admin(items: dict, search_items: dict={}, set_items: dict={}) -> int:
+    with Dao() as db:
+        q = db.query(TAdmin)
+
+
+        if 'id' in items:
+            q = q.where(TAdmin.id == items['id'])
+        if 'id_start' in items:
+            q = q.where(TAdmin.id >= items['id_start'])
+        if 'id_end' in items:
+            q = q.where(TAdmin.id <= items['id_end'])
+        
+        if 'username' in items:
+            q = q.where(TAdmin.username == items['username'])
+        if 'username_start' in items:
+            q = q.where(TAdmin.username >= items['username_start'])
+        if 'username_end' in items:
+            q = q.where(TAdmin.username <= items['username_end'])
+        
+        if 'phone' in items:
+            q = q.where(TAdmin.phone == items['phone'])
+        if 'phone_start' in items:
+            q = q.where(TAdmin.phone >= items['phone_start'])
+        if 'phone_end' in items:
+            q = q.where(TAdmin.phone <= items['phone_end'])
+        
+        if 'email' in items:
+            q = q.where(TAdmin.email == items['email'])
+        if 'email_start' in items:
+            q = q.where(TAdmin.email >= items['email_start'])
+        if 'email_end' in items:
+            q = q.where(TAdmin.email <= items['email_end'])
+        
+        if 'level_id' in items:
+            q = q.where(TAdmin.level_id == items['level_id'])
+        if 'level_id_start' in items:
+            q = q.where(TAdmin.level_id >= items['level_id_start'])
+        if 'level_id_end' in items:
+            q = q.where(TAdmin.level_id <= items['level_id_end'])
+        
+        if 'password' in items:
+            q = q.where(TAdmin.password == items['password'])
+        if 'password_start' in items:
+            q = q.where(TAdmin.password >= items['password_start'])
+        if 'password_end' in items:
+            q = q.where(TAdmin.password <= items['password_end'])
+        
+        if 'id_card' in items:
+            q = q.where(TAdmin.id_card == items['id_card'])
+        if 'id_card_start' in items:
+            q = q.where(TAdmin.id_card >= items['id_card_start'])
+        if 'id_card_end' in items:
+            q = q.where(TAdmin.id_card <= items['id_card_end'])
+        
+        if 'gender' in items:
+            q = q.where(TAdmin.gender == items['gender'])
+        if 'gender_start' in items:
+            q = q.where(TAdmin.gender >= items['gender_start'])
+        if 'gender_end' in items:
+            q = q.where(TAdmin.gender <= items['gender_end'])
+        
+        if 'register_time' in items:
+            q = q.where(TAdmin.register_time == items['register_time'])
+        if 'register_time_start' in items:
+            q = q.where(TAdmin.register_time >= items['register_time_start'])
+        if 'register_time_end' in items:
+            q = q.where(TAdmin.register_time <= items['register_time_end'])
+        
+        if 'last_active_time' in items:
+            q = q.where(TAdmin.last_active_time == items['last_active_time'])
+        if 'last_active_time_start' in items:
+            q = q.where(TAdmin.last_active_time >= items['last_active_time_start'])
+        if 'last_active_time_end' in items:
+            q = q.where(TAdmin.last_active_time <= items['last_active_time_end'])
+        
+        if 'status' in items:
+            q = q.where(TAdmin.status == items['status'])
+        if 'status_start' in items:
+            q = q.where(TAdmin.status >= items['status_start'])
+        if 'status_end' in items:
+            q = q.where(TAdmin.status <= items['status_end'])
+        
+        if 'business_id' in items:
+            q = q.where(TAdmin.business_id == items['business_id'])
+        if 'business_id_start' in items:
+            q = q.where(TAdmin.business_id >= items['business_id_start'])
+        if 'business_id_end' in items:
+            q = q.where(TAdmin.business_id <= items['business_id_end'])
+        
+        if 'admin_id' in items:
+            q = q.where(TAdmin.admin_id == items['admin_id'])
+        if 'admin_id_start' in items:
+            q = q.where(TAdmin.admin_id >= items['admin_id_start'])
+        if 'admin_id_end' in items:
+            q = q.where(TAdmin.admin_id <= items['admin_id_end'])
+        
+        if 'user_pic' in items:
+            q = q.where(TAdmin.user_pic == items['user_pic'])
+        if 'user_pic_start' in items:
+            q = q.where(TAdmin.user_pic >= items['user_pic_start'])
+        if 'user_pic_end' in items:
+            q = q.where(TAdmin.user_pic <= items['user_pic_end'])
+        
+        if 'user_info' in items:
+            q = q.where(TAdmin.user_info == items['user_info'])
+        if 'user_info_start' in items:
+            q = q.where(TAdmin.user_info >= items['user_info_start'])
+        if 'user_info_end' in items:
+            q = q.where(TAdmin.user_info <= items['user_info_end'])
+        
+
+        if 'id' in set_items:
+            q = q.where(TAdmin.id.in_(set_items['id']))
+        
+        if 'username' in set_items:
+            q = q.where(TAdmin.username.in_(set_items['username']))
+        
+        if 'phone' in set_items:
+            q = q.where(TAdmin.phone.in_(set_items['phone']))
+        
+        if 'email' in set_items:
+            q = q.where(TAdmin.email.in_(set_items['email']))
+        
+        if 'level_id' in set_items:
+            q = q.where(TAdmin.level_id.in_(set_items['level_id']))
+        
+        if 'password' in set_items:
+            q = q.where(TAdmin.password.in_(set_items['password']))
+        
+        if 'id_card' in set_items:
+            q = q.where(TAdmin.id_card.in_(set_items['id_card']))
+        
+        if 'gender' in set_items:
+            q = q.where(TAdmin.gender.in_(set_items['gender']))
+        
+        if 'register_time' in set_items:
+            q = q.where(TAdmin.register_time.in_(set_items['register_time']))
+        
+        if 'last_active_time' in set_items:
+            q = q.where(TAdmin.last_active_time.in_(set_items['last_active_time']))
+        
+        if 'status' in set_items:
+            q = q.where(TAdmin.status.in_(set_items['status']))
+        
+        if 'business_id' in set_items:
+            q = q.where(TAdmin.business_id.in_(set_items['business_id']))
+        
+        if 'admin_id' in set_items:
+            q = q.where(TAdmin.admin_id.in_(set_items['admin_id']))
+        
+        if 'user_pic' in set_items:
+            q = q.where(TAdmin.user_pic.in_(set_items['user_pic']))
+        
+        if 'user_info' in set_items:
+            q = q.where(TAdmin.user_info.in_(set_items['user_info']))
+        
+
+        if 'username' in search_items:
+            q = q.where(TAdmin.username.like(search_items['username']))
+        
+        if 'phone' in search_items:
+            q = q.where(TAdmin.phone.like(search_items['phone']))
+        
+        if 'email' in search_items:
+            q = q.where(TAdmin.email.like(search_items['email']))
+        
+        if 'password' in search_items:
+            q = q.where(TAdmin.password.like(search_items['password']))
+        
+        if 'id_card' in search_items:
+            q = q.where(TAdmin.id_card.like(search_items['id_card']))
+        
+        if 'gender' in search_items:
+            q = q.where(TAdmin.gender.like(search_items['gender']))
+        
+        if 'status' in search_items:
+            q = q.where(TAdmin.status.like(search_items['status']))
+        
+        if 'user_pic' in search_items:
+            q = q.where(TAdmin.user_pic.like(search_items['user_pic']))
+        
+        if 'user_info' in search_items:
+            q = q.where(TAdmin.user_info.like(search_items['user_info']))
+        
+    
+        c = q.count()
+        return c
+
+    
 def insert_balance(item: CreateBalance, db: Optional[SessionLocal] = None) -> SBalance:
     data = model2dict(item)
     t = TBalance(**data)
