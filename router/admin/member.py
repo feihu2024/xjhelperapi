@@ -1,5 +1,5 @@
 import datetime
-from dao import d_db, d_supplier, d_user, d_account
+from dao import d_db, d_user, d_account
 from fastapi import APIRouter, Depends, Header, Request
 from model.mall import m_supplier
 from model import m_schema, schema
