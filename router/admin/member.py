@@ -1,5 +1,5 @@
 import datetime
-from dao import d_db, d_user, d_account
+from dao import d_db, d_user
 from fastapi import APIRouter, Depends, Header, Request
 from model.mall import m_supplier
 from model import m_schema, schema
@@ -16,12 +16,12 @@ from fastapi import HTTPException
 
 router = APIRouter(dependencies=[Depends(verify_token)])
 
-@router.get(f'/member/get', summary='返回某个用户的基本信息和账户信息')
-async def get_user(user_id: int):
-    re_data = {"user":None, "balance":None}
-    re_data['user'] = d_user.get_user_by_id(user_id)
-    re_data['balance'] = d_account.get_account_info(user_id)
-    return re_data
+# @router.get(f'/member/get', summary='返回某个用户的基本信息和账户信息')
+# async def get_user(user_id: int):
+#     re_data = {"user":None, "balance":None}
+#     re_data['user'] = d_user.get_user_by_id(user_id)
+#     re_data['balance'] = d_account.get_account_info(user_id)
+#     return re_data
 
 @router.get(f'/member/get_user_level', summary='返回用户级别信息')
 async def get_user_level():
