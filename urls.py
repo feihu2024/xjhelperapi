@@ -16,7 +16,7 @@ def include_routers(app: FastAPI):
     app.include_router(mall.user.router, prefix='/mall/user', tags=['/mall/user'])
 
     # mall admin
-    app.include_router(admin.manage.router, prefix='/autoselladmin/admin', tags=['/autoselladmin/admin'])
+    app.include_router(admin.manage.router, prefix='/autoselladmin/manage', tags=['/autoselladmin/manage'])
 
     #
     # app.include_router(supplier.user.router, prefix='/supplier/user', tags=['/supplier/user'])
