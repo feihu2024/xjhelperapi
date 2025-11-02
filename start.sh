@@ -8,12 +8,16 @@ export DB=school
 
 export DOMAIN='https://'
 
-PYTHONPATH=`pwd` python main.py
+#python启动
+PYTHONPATH=`pwd`
+python main.py
 
-uvicorn main:app --reload
+#uvicorn启动
+#uvicorn main:app --reload
 #gunicorn -k uvicorn.workers.UvicornWorker --bind "127.0.0.1:8000"  main:app --daemon
 #gunicorn -k uvicorn.workers.UvicornWorker --bind "127.0.0.1:8000"  main:app
 #gunicorn -c gunicorn.conf.py -k uvicorn.workers.UvicornWorker  main:app --daemon
 
 echo 'ok'
+
 
