@@ -46,7 +46,7 @@ def login_for_token(username: str, password: str):
             'user_id': user.id,
             'time': time.time() + SECRET.VALID_TIME
         }
-        token = get_login_token_encode(data)
+        token = {'token_val': get_login_token_encode(data), 'user_id': user.id}
         #raise HTTPException(status_code=200, detail={'token': token, 'massage': 'Success'}, headers={"data": '123'})
         return token
     else:
