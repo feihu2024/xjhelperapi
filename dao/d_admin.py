@@ -5,11 +5,35 @@ from model import m_admin
 from config import SECRET
 from jose import JWTError, jwt
 from sqlalchemy import func, and_
-from model.schema import TUser
+from model.schema import TUser, TAdmin
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException
+from typing import List, Optional
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+
+
+class this_CreateAdmin(BaseModel):
+    username: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    level_id: Optional[int]
+    id_card: Optional[str]
+    gender: Optional[str]
+    register_time: Optional[datetime.datetime] = Field(title='创建时间')
+    last_active_time: Optional[datetime.datetime]
+    status: Optional[str]
+    business_id: Optional[int] = Field(title='商家ID_busiess_content')
+    admin_id: Optional[int] = Field(title='所属商家管理id')
+    user_pic: Optional[str] = Field(title='头像url')
+    user_info: Optional[str] = Field(title='用户备注')
+
+
+class this_SAdmin(this_CreateAdmin):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 
 def login_for_token(username: str, password: str):
