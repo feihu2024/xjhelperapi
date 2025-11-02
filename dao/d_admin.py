@@ -71,3 +71,12 @@ def get_login_id(token:str):
             re_code = int(data['user_id'])
     return re_code
 
+def get_admin_by_id(admin_id: int) -> Optional[this_SAdmin]:
+    # with Dao() as db:
+    #     return db.query(TAdmin).where(TAdmin.id == admin_id).first()
+    with Dao() as db:
+        t = db.query(TAdmin).where(TAdmin.id == admin_id).first()
+        if t:
+            return this_SAdmin.parse_obj(t.__dict__)
+        else:
+            return None
