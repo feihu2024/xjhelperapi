@@ -15,9 +15,6 @@ async def verify_token(jinnengyuansession: str = Header(...)):
 
 router = APIRouter()
 
-ontent = {"message": "add cookie"}
-
-
 @router.post(f'/login', summary='管理登录')
 async def admin_login(admin: m_admin.AdminRequest):
     """
