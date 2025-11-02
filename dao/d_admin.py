@@ -8,6 +8,7 @@ from sqlalchemy import func, and_
 from model.schema import TUser, TAdmin
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
