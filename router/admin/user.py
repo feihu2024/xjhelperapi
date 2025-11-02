@@ -41,7 +41,7 @@ async def logintest():
     """
     返回：jinnengyuansession携带到请求体head中，作为后端接口请求的token
     """
-    return d_admin.login_shop_token('admintest', 'kc1n6MVB', 10)
+    return d_admin.login_shop_token('admintest', 'xiaojiaadmin10', 10)
 
 
 #
