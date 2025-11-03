@@ -20,6 +20,16 @@ def get_subject_list(page:int = 1, page_size:int = 20):
         q = db.query(TShSubject).offset(page * page_size - page_size).limit(page_size).all()
         return q
 
+def get_point_list(page:int = 1, page_size:int = 20):
+    with Dao() as db:
+        q = db.query(TKnowledgePoint).offset(page * page_size - page_size).limit(page_size).all()
+        return q
+
+def get_type_list(page:int = 1, page_size:int = 20):
+    with Dao() as db:
+        q = db.query(TQuestionType).offset(page * page_size - page_size).limit(page_size).all()
+        return q
+
 # def insert_user(user: TUser) -> TUser:
 #     with Dao() as db:
 #         db.add(user)
