@@ -15,6 +15,10 @@ def get_class_list(page:int = 1, page_size:int = 20):
         q = db.query(TShClas).offset(page * page_size - page_size).limit(page_size).all()
         return q
 
+def get_subject_list(page:int = 1, page_size:int = 20):
+    with Dao() as db:
+        q = db.query(TShSubject).offset(page * page_size - page_size).limit(page_size).all()
+        return q
 
 # def insert_user(user: TUser) -> TUser:
 #     with Dao() as db:

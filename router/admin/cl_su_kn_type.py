@@ -22,4 +22,9 @@ async def class_list(page: int = 1, page_size: int = 20):
     """
     return d_cl_su_kn_type.get_class_list(page, page_size)
 
-
+@router.get(f'/subject_list', summary='年级列表')
+async def subject_list(page: int = 1, page_size: int = 20):
+    """
+    返回：jinnengyuansession携带到请求体head中，作为后端接口请求的token
+    """
+    return d_cl_su_kn_type.get_subject_list(page, page_size)
