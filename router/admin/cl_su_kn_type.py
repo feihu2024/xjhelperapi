@@ -62,3 +62,8 @@ async def subject_create(item: CreateShSubject) -> SShSubject:
 async def subject_update(item: SShSubject) -> str:
     d_db.update_sh_subject(item)
     return "success"
+
+@router.post(f'/subject_del', response_model=str)
+async def subject_del(del_id: int) -> str:
+    d_cl_su_kn_type.del_subject(del_id)
+    return "success"

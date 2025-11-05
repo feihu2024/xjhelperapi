@@ -20,6 +20,11 @@ def get_subject_list(page:int = 1, page_size:int = 20):
         q = db.query(TShSubject).offset(page * page_size - page_size).limit(page_size).all()
         return q
 
+def del_subject(subject_id:int):
+    with Dao() as db:
+        db.query(TShSubject).where(TShSubject.su_id == subject_id).delete()
+        db.flush()
+
 def get_point_list(page:int = 1, page_size:int = 20):
     with Dao() as db:
         q = db.query(TKnowledgePoint).offset(page * page_size - page_size).limit(page_size).all()
