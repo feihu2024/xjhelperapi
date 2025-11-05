@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from common import Dao
+from common.db import SessionLocal
 from model.schema import TShClas, TShSubject, TQuestionType, TKnowledgePoint
 from model.m_schema import *
 from sqlalchemy import or_, and_, func
@@ -8,6 +9,7 @@ from sqlalchemy import text
 import time
 from datetime import datetime
 from fastapi import HTTPException
+from dao import d_db
 
 
 def get_class_list(page:int = 1, page_size:int = 20):
@@ -35,6 +37,19 @@ def get_type_list(page:int = 1, page_size:int = 20):
     with Dao() as db:
         q = db.query(TQuestionType).offset(page * page_size - page_size).limit(page_size).all()
         return q
+
+
+def update_sh_subject(item: SShSubject, db: Optional[SessionLocal] = None):
+    data = d_db.model2dict(item)
+    data.pop('su_id')
+    if db:
+        db.query(TShSubject).where(TShSubject.su_id == item.su_id).update(data)
+        db.flush()
+        return
+
+    with Dao() as db:
+        db.query(TShSubject).where(TShSubject.su_id == item.su_id).update(data)
+        db.commit()
 
 # def insert_user(user: TUser) -> TUser:
 #     with Dao() as db:
