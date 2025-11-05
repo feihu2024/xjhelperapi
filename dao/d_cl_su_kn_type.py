@@ -24,6 +24,7 @@ def del_subject(subject_id:int):
     with Dao() as db:
         db.query(TShSubject).where(TShSubject.su_id == subject_id).delete()
         db.flush()
+        db.commit()
 
 def get_point_list(page:int = 1, page_size:int = 20):
     with Dao() as db:
