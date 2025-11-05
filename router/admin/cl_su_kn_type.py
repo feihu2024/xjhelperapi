@@ -42,3 +42,23 @@ async def type_list(page: int = 1, page_size: int = 20):
     返回：jinnengyuansession携带到请求体head中，作为后端接口请求的token
     """
     return d_cl_su_kn_type.get_type_list(page, page_size)
+
+@router.post(f'/subject_create', response_model=SShSubject, summary='添加学科')
+async def subject_create(item: CreateShSubject) -> SShSubject:
+    dict_item = dict(item)
+    for k,v in dict_item.items():
+        if v is not None:
+            v = str(v)
+            v = v.replace(" ", "")
+            get_search = re.search(r"'", v, flags=0)
+            get_search2 = re.search(r'%27', v, flags=0)
+            get_search3 = re.search(r'unionselect', v, flags=0)
+            if get_search or get_search2 or get_search3:
+               raise HTTPException(status_code=404, detail='bad way~~~~~~')
+
+    return d_db.insert_sh_subject(item)
+
+@router.post(f'/subject_update', response_model=str)
+async def subject_update(item: SShSubject) -> str:
+    d_db.update_sh_subject(item)
+    return "success"
