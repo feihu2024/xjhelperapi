@@ -88,3 +88,23 @@ async def create_chinese_point_subject(item: CreateChinesePointSubject) -> SChin
 async def update_chinese_point_subject(item: SChinesePointSubject) -> str:
     d_cl_su_kn_type.update_chinese_point_subject(item)
     return "success"
+
+@router.post(f'/knowledge_point/create', response_model=SKnowledgePoint)
+async def create_knowledge_point(item: CreateKnowledgePoint) -> SKnowledgePoint:
+    dict_item = dict(item)
+    for k,v in dict_item.items():
+        if v is not None:
+            v = str(v)
+            v = v.replace(" ", "")
+            get_search = re.search(r"'", v, flags=0)
+            get_search2 = re.search(r'%27', v, flags=0)
+            get_search3 = re.search(r'unionselect', v, flags=0)
+            if get_search or get_search2 or get_search3:
+               raise HTTPException(status_code=404, detail='bad way~~~~~~')
+
+    return d_db.insert_knowledge_point(item)
+
+@router.post(f'/knowledge_point/update', response_model=str)
+async def update_knowledge_point(item: SKnowledgePoint) -> str:
+    d_cl_su_kn_type.update_knowledge_point(item)
+    return "success"

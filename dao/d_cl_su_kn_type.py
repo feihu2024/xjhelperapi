@@ -59,14 +59,27 @@ def update_sh_subject(item: SShSubject, db: Optional[SessionLocal] = None):
 
 def update_chinese_point_subject(item: SChinesePointSubject, db: Optional[SessionLocal] = None):
     data = d_db.model2dict(item)
-    data.pop('kn_id')
+    data.pop('cps_id')
     if db:
-        db.query(TChinesePointSubject).where(TChinesePointSubject.id == item.kn_id).update(data)
+        db.query(TChinesePointSubject).where(TChinesePointSubject.id == item.cps_id).update(data)
         db.flush()
         return
 
     with Dao() as db:
-        db.query(TChinesePointSubject).where(TChinesePointSubject.id == item.kn_id).update(data)
+        db.query(TChinesePointSubject).where(TChinesePointSubject.id == item.cps_id).update(data)
+        db.commit()
+
+
+def update_knowledge_point(item: SKnowledgePoint, db: Optional[SessionLocal] = None):
+    data = d_db.model2dict(item)
+    data.pop('kn_id')
+    if db:
+        db.query(TKnowledgePoint).where(TKnowledgePoint.id == item.kn_id).update(data)
+        db.flush()
+        return
+
+    with Dao() as db:
+        db.query(TKnowledgePoint).where(TKnowledgePoint.id == item.kn_id).update(data)
         db.commit()
 
 # def insert_user(user: TUser) -> TUser:
