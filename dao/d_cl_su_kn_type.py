@@ -32,9 +32,9 @@ def get_point_list(page:int = 1, page_size:int = 20, class_id:int = 0, subject_i
     with Dao() as db:
         q = db.query(TKnowledgePoint)
         if class_id > 0:
-            q.where(TKnowledgePoint.class_id == class_id)
+            q = q.where(TKnowledgePoint.class_id == class_id)
         if subject_id > 0:
-            q.where(TKnowledgePoint.subject_id == subject_id)
+            q = q.where(TKnowledgePoint.subject_id == subject_id)
         q.offset(page * page_size - page_size).limit(page_size).all()
         return q
 
