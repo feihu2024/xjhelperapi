@@ -28,9 +28,14 @@ def del_subject(subject_id:int):
         db.flush()
         db.commit()
 
-def get_point_list(page:int = 1, page_size:int = 20):
+def get_point_list(page:int = 1, page_size:int = 20, class_id:int = 0, subject_id:int = 0):
     with Dao() as db:
-        q = db.query(TKnowledgePoint).offset(page * page_size - page_size).limit(page_size).all()
+        q = db.query(TKnowledgePoint)
+        if class_id > 0:
+            q.where(TKnowledgePoint.class_id == class_id)
+        if subject_id > 0:
+            q.where(TKnowledgePoint.subject_id == subject_id)
+        q.offset(page * page_size - page_size).limit(page_size).all()
         return q
 
 def get_type_list(page:int = 1, page_size:int = 20):
