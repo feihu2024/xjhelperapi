@@ -36,7 +36,7 @@ def get_point_list(page:int = 1, page_size:int = 20, class_id:int = 0, subject_i
         if subject_id > 0:
             q = q.where(TKnowledgePoint.subject_id == subject_id)
         q.offset(page * page_size - page_size).limit(page_size).all()
-        return q
+        return [SKnowledgePoint.parse_obj(t.__dict__) for t in q]
 
 def get_type_list(page:int = 1, page_size:int = 20):
     with Dao() as db:
