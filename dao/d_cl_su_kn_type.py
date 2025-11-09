@@ -61,12 +61,12 @@ def update_chinese_point_subject(item: SChinesePointSubject, db: Optional[Sessio
     data = d_db.model2dict(item)
     data.pop('cps_id')
     if db:
-        db.query(TChinesePointSubject).where(TChinesePointSubject.id == item.cps_id).update(data)
+        db.query(TChinesePointSubject).where(TChinesePointSubject.cps_id == item.cps_id).update(data)
         db.flush()
         return
 
     with Dao() as db:
-        db.query(TChinesePointSubject).where(TChinesePointSubject.id == item.cps_id).update(data)
+        db.query(TChinesePointSubject).where(TChinesePointSubject.cps_id == item.cps_id).update(data)
         db.commit()
 
 
@@ -74,12 +74,12 @@ def update_knowledge_point(item: SKnowledgePoint, db: Optional[SessionLocal] = N
     data = d_db.model2dict(item)
     data.pop('kn_id')
     if db:
-        db.query(TKnowledgePoint).where(TKnowledgePoint.id == item.kn_id).update(data)
+        db.query(TKnowledgePoint).where(TKnowledgePoint.kn_id == item.kn_id).update(data)
         db.flush()
         return
 
     with Dao() as db:
-        db.query(TKnowledgePoint).where(TKnowledgePoint.id == item.kn_id).update(data)
+        db.query(TKnowledgePoint).where(TKnowledgePoint.kn_id == item.kn_id).update(data)
         db.commit()
 
 # def insert_user(user: TUser) -> TUser:
