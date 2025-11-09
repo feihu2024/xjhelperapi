@@ -15,12 +15,12 @@ from dao import d_db
 def get_class_list(page:int = 1, page_size:int = 20):
     with Dao() as db:
         q = db.query(TShClas).offset(page * page_size - page_size).limit(page_size).all()
-        return q
+        return [SShClas.parse_obj(t.__dict__) for t in q]
 
 def get_subject_list(page:int = 1, page_size:int = 20):
     with Dao() as db:
         q = db.query(TShSubject).offset(page * page_size - page_size).limit(page_size).all()
-        return q
+        return [SShSubject.parse_obj(t.__dict__) for t in q]
 
 def del_subject(subject_id:int):
     with Dao() as db:
@@ -41,7 +41,7 @@ def get_point_list(page:int = 1, page_size:int = 20, class_id:int = 0, subject_i
 def get_type_list(page:int = 1, page_size:int = 20):
     with Dao() as db:
         q = db.query(TQuestionType).offset(page * page_size - page_size).limit(page_size).all()
-        return q
+        return [SQuestionType.parse_obj(t.__dict__) for t in q]
 
 
 def update_sh_subject(item: SShSubject, db: Optional[SessionLocal] = None):
