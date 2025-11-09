@@ -30,7 +30,7 @@ async def subject_list(page: int = 1, page_size: int = 20):
     return d_cl_su_kn_type.get_subject_list(page, page_size)
 
 @router.get(f'/point_list', summary='知识点目录')
-async def point_list(page: int = 1, page_size: int = 20, class_id: int = 0, subject_id=0):
+async def point_list(page: int = 1, page_size: int = 20, class_id: int = 0, subject_id:int = 0):
     """
     返回：jinnengyuansession携带到请求体head中，作为后端接口请求的token
     """
