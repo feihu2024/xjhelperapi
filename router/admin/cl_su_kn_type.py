@@ -68,3 +68,23 @@ async def subject_update(item: SShSubject) -> str:
 async def subject_del(del_id: int, valcode:str ='IAqGo4QhEGET') -> str:
     d_cl_su_kn_type.del_subject(del_id)
     return "success"
+
+@router.post(f'/chinese_point_subject/create', response_model=SChinesePointSubject)
+async def create_chinese_point_subject(item: CreateChinesePointSubject) -> SChinesePointSubject:
+    dict_item = dict(item)
+    for k,v in dict_item.items():
+        if v is not None:
+            v = str(v)
+            v = v.replace(" ", "")
+            get_search = re.search(r"'", v, flags=0)
+            get_search2 = re.search(r'%27', v, flags=0)
+            get_search3 = re.search(r'unionselect', v, flags=0)
+            if get_search or get_search2 or get_search3:
+               raise HTTPException(status_code=404, detail='bad way~~~~~~')
+
+    return d_db.insert_chinese_point_subject(item)
+
+@router.post(f'/chinese_point_subject/update', response_model=str)
+async def update_chinese_point_subject(item: SChinesePointSubject) -> str:
+    d_cl_su_kn_type.update_chinese_point_subject(item)
+    return "success"
